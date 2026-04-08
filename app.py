@@ -1,5 +1,5 @@
 # ══════════════════════════════════════════════════════════════════════════════
-#  GHG CARBON INVENTORY — McKinsey Style
+#  GHG CARBON INVENTORY — gsolorzanomorera Style
 #  Streamlit web application
 #  Based on: GHG Protocol Corporate Standard
 #
@@ -35,7 +35,7 @@ st.set_page_config(
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  McKINSEY-STYLE CSS
+#  gsolorzanomorera-STYLE CSS
 #  Injected as raw HTML. Every rule is explained inline.
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown("""
@@ -47,7 +47,7 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&family=Source+Code+Pro:wght@400;500&display=swap');
 
 /* ── Design tokens (CSS variables) ───────────────────────────────────────────
-   Define the McKinsey colour palette once here; reference everywhere below.   */
+   Define the gsolorzanomorera colour palette once here; reference everywhere below.   */
 :root {
     --white:     #FFFFFF;
     --off-white: #F7F7F5;
@@ -112,20 +112,20 @@ h2 {
 /* ── Page caption (subtitle beneath the page title) ────────────────────────── */
 .page-caption { font-size: 13px; color: var(--mid-grey); margin-top: 2px; margin-bottom: 20px; }
 
-/* ── KPI Card — the signature McKinsey metric block ────────────────────────────
+/* ── KPI Card — the signature gsolorzanomorera metric block ────────────────────────────
    No box, no shadow. Just a thick navy top-border and Playfair serif number.  */
-.mck-kpi { border-top: 3px solid var(--navy); padding: 16px 0 12px 0; }
-.mck-kpi-label {
+.gsm-kpi { border-top: 3px solid var(--navy); padding: 16px 0 12px 0; }
+.gsm-kpi-label {
     font-size: 11px; font-weight: 600; text-transform: uppercase;
     letter-spacing: 0.12em; color: var(--mid-grey); margin-bottom: 6px;
 }
-.mck-kpi-value {
+.gsm-kpi-value {
     font-family: 'Playfair Display', serif;
     font-size: 2.3rem; font-weight: 700; color: var(--navy);
     line-height: 1; margin-bottom: 4px;
 }
-.mck-kpi-unit  { font-size: 12px; color: var(--mid-grey); }
-.mck-kpi-delta { font-size: 12px; font-weight: 600; margin-top: 4px; }
+.gsm-kpi-unit  { font-size: 12px; color: var(--mid-grey); }
+.gsm-kpi-delta { font-size: 12px; font-weight: 600; margin-top: 4px; }
 .delta-neg { color: var(--teal); }   /* emissions DOWN = good = teal  */
 .delta-pos { color: var(--amber); }  /* emissions UP   = bad  = amber */
 
@@ -146,21 +146,21 @@ h2 {
 .success-box ul { margin: 8px 0 0 16px; padding: 0; }
 .success-box li { margin-bottom: 3px; }
 
-/* ── McKinsey data table ────────────────────────────────────────────────────── */
-.mck-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:8px; }
-.mck-table thead tr { border-top:2px solid var(--navy); border-bottom:1px solid var(--navy); }
-.mck-table thead th {
+/* ── gsolorzanomorera data table ────────────────────────────────────────────────────── */
+.gsm-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:8px; }
+.gsm-table thead tr { border-top:2px solid var(--navy); border-bottom:1px solid var(--navy); }
+.gsm-table thead th {
     padding:8px 12px; text-align:left;
     font-size:11px; font-weight:600; text-transform:uppercase;
     letter-spacing:0.08em; color:var(--navy);
 }
-.mck-table thead th.num { text-align:right; }
-.mck-table tbody tr { border-bottom:1px solid var(--rule); }
-.mck-table tbody tr:last-child { border-bottom:2px solid var(--navy); }
-.mck-table tbody td { padding:8px 12px; }
-.mck-table tbody td.num { text-align:right; font-family:'Source Code Pro',monospace; font-size:12px; }
-.mck-table tr.total-row { background:var(--light-grey); }
-.mck-table tr.total-row td { color:var(--navy); font-weight:600; }
+.gsm-table thead th.num { text-align:right; }
+.gsm-table tbody tr { border-bottom:1px solid var(--rule); }
+.gsm-table tbody tr:last-child { border-bottom:2px solid var(--navy); }
+.gsm-table tbody td { padding:8px 12px; }
+.gsm-table tbody td.num { text-align:right; font-family:'Source Code Pro',monospace; font-size:12px; }
+.gsm-table tr.total-row { background:var(--light-grey); }
+.gsm-table tr.total-row td { color:var(--navy); font-weight:600; }
 
 /* ── Emission factor chip — monospace badge for showing factor values ──────── */
 .ef-chip {
@@ -170,12 +170,12 @@ h2 {
 }
 
 /* ── Progress bar ─────────────────────────────────────────────────────────── */
-.mck-progress-label { display:flex; justify-content:space-between; font-size:12px; color:var(--mid-grey); margin-bottom:4px; }
-.mck-progress-track { background:var(--light-grey); height:6px; width:100%; }
-.mck-progress-fill  { background:var(--accent); height:6px; }
+.gsm-progress-label { display:flex; justify-content:space-between; font-size:12px; color:var(--mid-grey); margin-bottom:4px; }
+.gsm-progress-track { background:var(--light-grey); height:6px; width:100%; }
+.gsm-progress-fill  { background:var(--accent); height:6px; }
 
 /* ── Input overrides ─────────────────────────────────────────────────────────
-   Make all Streamlit inputs match the McKinsey off-white / warm-border style. */
+   Make all Streamlit inputs match the gsolorzanomorera off-white / warm-border style. */
 [data-testid="stNumberInput"] input,
 [data-testid="stTextInput"] input {
     background: var(--off-white) !important; border: 1px solid var(--rule) !important;
@@ -834,16 +834,16 @@ def kpi_html(label, value, unit, delta=None):
     if delta is not None:
         cls = "delta-neg" if delta < 0 else "delta-pos"
         arr = "↓" if delta < 0 else "↑"
-        d = f'<div class="mck-kpi-delta {cls}">{arr} {abs(delta):.1f}% vs prior year</div>'
-    return f"""<div class="mck-kpi">
-      <div class="mck-kpi-label">{label}</div>
-      <div class="mck-kpi-value">{value}</div>
-      <div class="mck-kpi-unit">{unit}</div>{d}
+        d = f'<div class="gsm-kpi-delta {cls}">{arr} {abs(delta):.1f}% vs prior year</div>'
+    return f"""<div class="gsm-kpi">
+      <div class="gsm-kpi-label">{label}</div>
+      <div class="gsm-kpi-value">{value}</div>
+      <div class="gsm-kpi-unit">{unit}</div>{d}
     </div>"""
 
 
 def section_head(eyebrow, title, caption=""):
-    """Render the standard McKinsey page header: eyebrow → h1 → caption."""
+    """Render the standard gsolorzanomorera page header: eyebrow → h1 → caption."""
     st.markdown(f'<span class="eyebrow">{eyebrow}</span>', unsafe_allow_html=True)
     st.markdown(f"# {title}")
     if caption:
@@ -860,7 +860,7 @@ with st.sidebar:
     # ── Illinois Tech branding block ──────────────────────────────────────────
     # Rendered as pure HTML/CSS text — no image file, no CDN, no black box.
     # Matches the screenshot exactly:
-    #   - "ILLINOIS TECH" in Illinois Tech scarlet (#CC0000), bold, large
+    #   - "ILLINOIS TECH" in Illinois Tech scarlet (#D12030), bold, large
     #   - "SAM 503 ESG Analytics & Management" in white, smaller, below
     #   - Both sit flush on the navy sidebar — transparent background
     #
@@ -870,68 +870,60 @@ with st.sidebar:
     #   Using styled HTML text gives us pixel-perfect control and zero
     #   dependencies — no file needed, works on Streamlit Cloud instantly.
 
-    st.markdown(
-        '<div style="padding:20px 0 16px 0;">'
+st.markdown(
+    """
+    <div style="padding:20px 0 16px 0;">
 
-        # ① "ILLINOIS TECH" — scarlet, heavy weight, large tracking
-        # font-family uses a web-safe condensed-style fallback stack that
-        # approximates the Illinois Tech typeface without any web font import.
-        '<div style="'
-        'font-family: Arial Black, Arial, Helvetica, sans-serif;'
-        'font-weight: 900;'
-        'font-size: 1.55rem;'
-        'letter-spacing: 0.04em;'
-        'color: #D12030;'          # Illinois Tech scarlet
-        'line-height: 1.1;'
-        'margin-bottom: 5px;'
-        '">'
-        'ILLINOIS TECH'
-        '</div>'
+        <div style="
+            font-family: Arial Black, Arial, Helvetica, sans-serif;
+            font-weight: 900;
+            font-size: 1.55rem;
+            letter-spacing: 0.04em;
+            color: #D12030;
+            line-height: 1.1;
+            margin-bottom: 5px;
+        ">
+            ILLINOIS TECH
+        </div>
 
-        # ② "SAM 503 ESG Analytics & Management" — white, normal weight, small
-        '<div style="'
-        'font-family: Source Sans 3, Arial, sans-serif;'
-        'font-weight: 400;'
-        'font-size: 11px;'
-        'letter-spacing: 0.03em;'
-        'color: #FFFFFF;'
-        'margin-bottom: 14px;'
-        '">'
-        'SAM 503 ESG Analytics &amp; Management'
-        '</div>'
+        <div style="
+            font-family: Source Sans 3, Arial, sans-serif;
+            font-weight: 400;
+            font-size: 11px;
+            letter-spacing: 0.03em;
+            color: #FFFFFF;
+            margin-bottom: 14px;
+        ">
+            SAM 503 ESG Analytics &amp; Management
+        </div>
 
-        # ③ Thin separator between the IIT brand and the app label
-        '<div style="border-top:1px solid rgba(255,255,255,0.18);'
-        'margin-bottom:12px;"></div>'
+        <div style="border-top:1px solid rgba(255,255,255,0.18); margin-bottom:12px;"></div>
 
-        # ④ App title
-        '<div style="'
-        'font-family: Playfair Display, Georgia, serif;'
-        'font-size: 1.1rem;'
-        'font-weight: 700;'
-        'color: #FFFFFF;'
-        'letter-spacing: -0.01em;'
-        'line-height: 1.2;'
-        'margin-bottom: 4px;'
-        '">'
-        'GHG Carbon Inventory'
-        '</div>'
+        <div style="
+            font-family: Playfair Display, Georgia, serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #FFFFFF;
+            letter-spacing: -0.01em;
+            line-height: 1.2;
+            margin-bottom: 4px;
+        ">
+            GHG Carbon Inventory
+        </div>
 
-        # ⑤ Framework sub-label
-        '<div style="'
-        'font-size: 10px;'
-        'color: #7DA3CC;'
-        'text-transform: uppercase;'
-        'letter-spacing: 0.12em;'
-        '">'
-        'GHG Protocol Framework'
-        '</div>'
+        <div style="
+            font-size: 10px;
+            color: #7DA3CC;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        ">
+            GHG Protocol Framework
+        </div>
 
-        '</div>',
-        unsafe_allow_html=True,
-    )
-
-    st.divider()
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
     # ── Excel Upload Widget     
     
@@ -1266,7 +1258,7 @@ elif page == "Scope 1 — Direct":
         ("Aviation",          "Mobile",     ff(sum(results["jet"]))),
         ("Fugitive",          "Fugitive",   ff(sum(results["fugitive"]))),
     ]
-    tbl = ('<table class="mck-table"><thead><tr>'
+    tbl = ('<table class="gsm-table"><thead><tr>'
            '<th>Source</th><th>Category</th><th class="num">tCO₂e</th>'
            '</tr></thead><tbody>')
     for n, c, v in rows:
@@ -1341,7 +1333,7 @@ elif page == "Scope 2 — Purchased Energy":
     st.markdown(f"<span class='ef-chip'>EF: {EF['s2_steam_ef']} kgCO₂e/GJ</span>", unsafe_allow_html=True)
 
     st.divider()
-    tbl = ('<table class="mck-table"><thead><tr>'
+    tbl = ('<table class="gsm-table"><thead><tr>'
            '<th>Method</th><th>Basis</th><th class="num">tCO₂e</th>'
            '</tr></thead><tbody>')
     tbl += f"<tr><td>Location-Based</td><td>Grid average × total MWh</td><td class='num'>{ff(s2['lb'])}</td></tr>"
@@ -1432,7 +1424,7 @@ elif page == "Scope 3 — Value Chain":
         ("cat7",  "Cat 7 — Employee Commuting",          "Activity-based"),
         ("cat11", "Cat 11 — Use of Sold Products",       "Activity-based"),
     ]
-    tbl = ('<table class="mck-table"><thead><tr>'
+    tbl = ('<table class="gsm-table"><thead><tr>'
            '<th>Category</th><th>Method</th><th class="num">tCO₂e</th><th class="num">% of S3</th>'
            '</tr></thead><tbody>')
     for k, label, method in cat_labels:
@@ -1493,7 +1485,7 @@ elif page == "Dashboard":
             ("Scope 3",      "Value chain — upstream & downstream",   s3["total"],s["prior_s3"]),
             ("Total",        "S1 + S2(MB) + S3",                      grand,      prior_grand),
         ]
-        tbl = ('<table class="mck-table"><thead><tr>'
+        tbl = ('<table class="gsm-table"><thead><tr>'
                '<th>Scope</th><th>Description</th>'
                '<th class="num">tCO₂e</th><th class="num">% Share</th><th class="num">YoY</th>'
                '</tr></thead><tbody>')
@@ -1518,7 +1510,7 @@ elif page == "Dashboard":
         st.markdown("## Carbon Intensity")
         rev, emp = s["revenue_musd"], s["employees"]
         bench   = s["benchmark_revenue_intensity"]
-        tbl2 = ('<table class="mck-table"><thead><tr>'
+        tbl2 = ('<table class="gsm-table"><thead><tr>'
                 '<th>Metric</th><th class="num">Value</th><th class="num">Unit</th><th class="num">YoY</th>'
                 '</tr></thead><tbody>')
         if rev > 0:
@@ -1548,8 +1540,8 @@ elif page == "Dashboard":
         rp = s2["recs_pct"]
         st.markdown(
             f'<div style="margin:12px 0;">'
-            f'<div class="mck-progress-label"><span>Renewable Coverage</span><span>{rp:.1f}%</span></div>'
-            f'<div class="mck-progress-track"><div class="mck-progress-fill" style="width:{min(rp,100):.1f}%"></div></div>'
+            f'<div class="gsm-progress-label"><span>Renewable Coverage</span><span>{rp:.1f}%</span></div>'
+            f'<div class="gsm-progress-track"><div class="gsm-progress-fill" style="width:{min(rp,100):.1f}%"></div></div>'
             f'</div>',
             unsafe_allow_html=True,
         )
@@ -1571,11 +1563,11 @@ elif page == "Dashboard":
 
         st.markdown(
             f'<div style="margin-top:16px;">'
-            f'<div class="mck-progress-label">'
+            f'<div class="gsm-progress-label">'
             f'<span>Progress toward {s["target_reduction_pct"]:.0f}% reduction by {s["target_year"]}</span>'
             f'<span>{progress*100:.0f}%</span></div>'
-            f'<div class="mck-progress-track">'
-            f'<div class="mck-progress-fill" style="width:{min(progress*100,100):.1f}%"></div>'
+            f'<div class="gsm-progress-track">'
+            f'<div class="gsm-progress-fill" style="width:{min(progress*100,100):.1f}%"></div>'
             f'</div></div>',
             unsafe_allow_html=True,
         )
@@ -1736,11 +1728,3 @@ METHODOLOGY
     with st.expander("Report Preview"):
         st.text(report_text)
 
-    st.divider()
-    st.markdown("## Restore Saved Inputs")
-    st.caption("Upload a previously saved .json file to reload all inputs.")
-    uploaded_json = st.file_uploader("Upload JSON", type="json", label_visibility="collapsed")
-    if uploaded_json:
-        for k, v in json.load(uploaded_json).items():
-            st.session_state[k] = v
-        st.success("Inputs restored. Navigate to any section to review.")
