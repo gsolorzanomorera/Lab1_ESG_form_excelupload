@@ -870,7 +870,7 @@ with st.sidebar:
     #   Using styled HTML text gives us pixel-perfect control and zero
     #   dependencies — no file needed, works on Streamlit Cloud instantly.
 
-st.markdown(
+    st.markdown(
     """
     <div style="padding:20px 0 16px 0;">
 
