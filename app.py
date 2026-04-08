@@ -3,7 +3,7 @@
 #  Streamlit web application
 #  Based on: GHG Protocol Corporate Standard
 #
-#  NEW in this version:
+# In this version:
 #    - Upload an Excel workbook (matching the Lab1_dashboard.xlsx template)
 #    - The app reads every input cell automatically using openpyxl
 #    - All session_state variables are overwritten with the Excel values
