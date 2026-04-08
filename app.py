@@ -114,18 +114,18 @@ h2 {
 
 /* ── KPI Card — the signature gsolorzanomorera metric block ────────────────────────────
    No box, no shadow. Just a thick navy top-border and Playfair serif number.  */
-.gsm-kpi { border-top: 3px solid var(--navy); padding: 16px 0 12px 0; }
-.gsm-kpi-label {
+.mck-kpi { border-top: 3px solid var(--navy); padding: 16px 0 12px 0; }
+.mck-kpi-label {
     font-size: 11px; font-weight: 600; text-transform: uppercase;
     letter-spacing: 0.12em; color: var(--mid-grey); margin-bottom: 6px;
 }
-.gsm-kpi-value {
+.mck-kpi-value {
     font-family: 'Playfair Display', serif;
     font-size: 2.3rem; font-weight: 700; color: var(--navy);
     line-height: 1; margin-bottom: 4px;
 }
-.gsm-kpi-unit  { font-size: 12px; color: var(--mid-grey); }
-.gsm-kpi-delta { font-size: 12px; font-weight: 600; margin-top: 4px; }
+.mck-kpi-unit  { font-size: 12px; color: var(--mid-grey); }
+.mck-kpi-delta { font-size: 12px; font-weight: 600; margin-top: 4px; }
 .delta-neg { color: var(--teal); }   /* emissions DOWN = good = teal  */
 .delta-pos { color: var(--amber); }  /* emissions UP   = bad  = amber */
 
@@ -147,20 +147,20 @@ h2 {
 .success-box li { margin-bottom: 3px; }
 
 /* ── gsolorzanomorera data table ────────────────────────────────────────────────────── */
-.gsm-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:8px; }
-.gsm-table thead tr { border-top:2px solid var(--navy); border-bottom:1px solid var(--navy); }
-.gsm-table thead th {
+.mck-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:8px; }
+.mck-table thead tr { border-top:2px solid var(--navy); border-bottom:1px solid var(--navy); }
+.mck-table thead th {
     padding:8px 12px; text-align:left;
     font-size:11px; font-weight:600; text-transform:uppercase;
     letter-spacing:0.08em; color:var(--navy);
 }
-.gsm-table thead th.num { text-align:right; }
-.gsm-table tbody tr { border-bottom:1px solid var(--rule); }
-.gsm-table tbody tr:last-child { border-bottom:2px solid var(--navy); }
-.gsm-table tbody td { padding:8px 12px; }
-.gsm-table tbody td.num { text-align:right; font-family:'Source Code Pro',monospace; font-size:12px; }
-.gsm-table tr.total-row { background:var(--light-grey); }
-.gsm-table tr.total-row td { color:var(--navy); font-weight:600; }
+.mck-table thead th.num { text-align:right; }
+.mck-table tbody tr { border-bottom:1px solid var(--rule); }
+.mck-table tbody tr:last-child { border-bottom:2px solid var(--navy); }
+.mck-table tbody td { padding:8px 12px; }
+.mck-table tbody td.num { text-align:right; font-family:'Source Code Pro',monospace; font-size:12px; }
+.mck-table tr.total-row { background:var(--light-grey); }
+.mck-table tr.total-row td { color:var(--navy); font-weight:600; }
 
 /* ── Emission factor chip — monospace badge for showing factor values ──────── */
 .ef-chip {
@@ -170,9 +170,9 @@ h2 {
 }
 
 /* ── Progress bar ─────────────────────────────────────────────────────────── */
-.gsm-progress-label { display:flex; justify-content:space-between; font-size:12px; color:var(--mid-grey); margin-bottom:4px; }
-.gsm-progress-track { background:var(--light-grey); height:6px; width:100%; }
-.gsm-progress-fill  { background:var(--accent); height:6px; }
+.mck-progress-label { display:flex; justify-content:space-between; font-size:12px; color:var(--mid-grey); margin-bottom:4px; }
+.mck-progress-track { background:var(--light-grey); height:6px; width:100%; }
+.mck-progress-fill  { background:var(--accent); height:6px; }
 
 /* ── Input overrides ─────────────────────────────────────────────────────────
    Make all Streamlit inputs match the gsolorzanomorera off-white / warm-border style. */
@@ -834,11 +834,11 @@ def kpi_html(label, value, unit, delta=None):
     if delta is not None:
         cls = "delta-neg" if delta < 0 else "delta-pos"
         arr = "↓" if delta < 0 else "↑"
-        d = f'<div class="gsm-kpi-delta {cls}">{arr} {abs(delta):.1f}% vs prior year</div>'
-    return f"""<div class="gsm-kpi">
-      <div class="gsm-kpi-label">{label}</div>
-      <div class="gsm-kpi-value">{value}</div>
-      <div class="gsm-kpi-unit">{unit}</div>{d}
+        d = f'<div class="mck-kpi-delta {cls}">{arr} {abs(delta):.1f}% vs prior year</div>'
+    return f"""<div class="mck-kpi">
+      <div class="mck-kpi-label">{label}</div>
+      <div class="mck-kpi-value">{value}</div>
+      <div class="mck-kpi-unit">{unit}</div>{d}
     </div>"""
 
 
@@ -978,7 +978,13 @@ with st.sidebar:
         last_file_id    = st.session_state.get("excel_file_id", None)
 
         if current_file_id != last_file_id:
-            # New file detected — parse it
+            # New file detected — parse it.
+            # CRITICAL: we call st.rerun() after writing to session_state.
+            # Streamlit widgets that use key="x" OWN session_state["x"].
+            # Any external write in the SAME rerun is silently ignored.
+            # st.rerun() forces a fresh pass where session_state is already
+            # populated BEFORE widgets render, so every field shows the value.
+            # file_id is stored BEFORE rerun so we do not re-parse infinitely.
             with st.spinner("Reading Excel…"):
                 try:
                     summary_lines = parse_excel(uploaded)
@@ -986,6 +992,7 @@ with st.sidebar:
                     st.session_state["excel_filename"] = uploaded.name
                     st.session_state["excel_file_id"]  = current_file_id
                     st.session_state["excel_summary"]  = summary_lines
+                    st.rerun()  # <- makes widgets pick up new values
                 except Exception as e:
                     st.session_state["excel_imported"] = False
                     st.error(f"Could not read Excel: {e}")
@@ -1113,27 +1120,17 @@ if page == "Inputs":
         # (not the index) in session_state when key= is used.
         # We guard the index lookup so a value from Excel that isn't in the list
         # defaults to index 0 instead of crashing.
-        _industry_idx = (
-            INDUSTRY_OPTIONS.index(st.session_state["industry"])
-            if st.session_state["industry"] in INDUSTRY_OPTIONS else 0
-        )
-        st.selectbox(
-            "Industry Sector",
-            INDUSTRY_OPTIONS,
-            index=_industry_idx,
-            key="industry",
-        )
+        # key="industry" means Streamlit reads session_state["industry"]
+        # directly to set the displayed option. After st.rerun() following
+        # an Excel import, the correct value is already in session_state.
+        # If the stored value is not in the options list, we reset it first.
+        if st.session_state.get("industry") not in INDUSTRY_OPTIONS:
+            st.session_state["industry"] = INDUSTRY_OPTIONS[0]
+        st.selectbox("Industry Sector", INDUSTRY_OPTIONS, key="industry")
 
-        _country_idx = (
-            COUNTRY_OPTIONS.index(st.session_state["country"])
-            if st.session_state["country"] in COUNTRY_OPTIONS else 0
-        )
-        st.selectbox(
-            "Primary Country of Operations",
-            COUNTRY_OPTIONS,
-            index=_country_idx,
-            key="country",
-        )
+        if st.session_state.get("country") not in COUNTRY_OPTIONS:
+            st.session_state["country"] = COUNTRY_OPTIONS[0]
+        st.selectbox("Primary Country of Operations", COUNTRY_OPTIONS, key="country")
 
         st.number_input(
             "Reporting Year",
@@ -1308,7 +1305,7 @@ elif page == "Scope 1 — Direct":
         ("Aviation",          "Mobile",     ff(sum(results["jet"]))),
         ("Fugitive",          "Fugitive",   ff(sum(results["fugitive"]))),
     ]
-    tbl = ('<table class="gsm-table"><thead><tr>'
+    tbl = ('<table class="mck-table"><thead><tr>'
            '<th>Source</th><th>Category</th><th class="num">tCO₂e</th>'
            '</tr></thead><tbody>')
     for n, c, v in rows:
@@ -1375,7 +1372,7 @@ elif page == "Scope 2 — Purchased Energy":
     st.markdown(f"<span class='ef-chip'>EF: {EF['s2_steam_ef']} kgCO₂e/GJ</span>", unsafe_allow_html=True)
 
     st.divider()
-    tbl = ('<table class="gsm-table"><thead><tr>'
+    tbl = ('<table class="mck-table"><thead><tr>'
            '<th>Method</th><th>Basis</th><th class="num">tCO₂e</th>'
            '</tr></thead><tbody>')
     tbl += f"<tr><td>Location-Based</td><td>Grid average × total MWh</td><td class='num'>{ff(s2['lb'])}</td></tr>"
@@ -1460,7 +1457,7 @@ elif page == "Scope 3 — Value Chain":
         ("cat7",  "Cat 7 — Employee Commuting",          "Activity-based"),
         ("cat11", "Cat 11 — Use of Sold Products",       "Activity-based"),
     ]
-    tbl = ('<table class="gsm-table"><thead><tr>'
+    tbl = ('<table class="mck-table"><thead><tr>'
            '<th>Category</th><th>Method</th><th class="num">tCO₂e</th><th class="num">% of S3</th>'
            '</tr></thead><tbody>')
     for k, label, method in cat_labels:
@@ -1521,7 +1518,7 @@ elif page == "Dashboard":
             ("Scope 3",      "Value chain — upstream & downstream",   s3["total"],s["prior_s3"]),
             ("Total",        "S1 + S2(MB) + S3",                      grand,      prior_grand),
         ]
-        tbl = ('<table class="gsm-table"><thead><tr>'
+        tbl = ('<table class="mck-table"><thead><tr>'
                '<th>Scope</th><th>Description</th>'
                '<th class="num">tCO₂e</th><th class="num">% Share</th><th class="num">YoY</th>'
                '</tr></thead><tbody>')
@@ -1546,7 +1543,7 @@ elif page == "Dashboard":
         st.markdown("## Carbon Intensity")
         rev, emp = s["revenue_musd"], s["employees"]
         bench   = s["benchmark_revenue_intensity"]
-        tbl2 = ('<table class="gsm-table"><thead><tr>'
+        tbl2 = ('<table class="mck-table"><thead><tr>'
                 '<th>Metric</th><th class="num">Value</th><th class="num">Unit</th><th class="num">YoY</th>'
                 '</tr></thead><tbody>')
         if rev > 0:
@@ -1576,8 +1573,8 @@ elif page == "Dashboard":
         rp = s2["recs_pct"]
         st.markdown(
             f'<div style="margin:12px 0;">'
-            f'<div class="gsm-progress-label"><span>Renewable Coverage</span><span>{rp:.1f}%</span></div>'
-            f'<div class="gsm-progress-track"><div class="gsm-progress-fill" style="width:{min(rp,100):.1f}%"></div></div>'
+            f'<div class="mck-progress-label"><span>Renewable Coverage</span><span>{rp:.1f}%</span></div>'
+            f'<div class="mck-progress-track"><div class="mck-progress-fill" style="width:{min(rp,100):.1f}%"></div></div>'
             f'</div>',
             unsafe_allow_html=True,
         )
@@ -1599,11 +1596,11 @@ elif page == "Dashboard":
 
         st.markdown(
             f'<div style="margin-top:16px;">'
-            f'<div class="gsm-progress-label">'
+            f'<div class="mck-progress-label">'
             f'<span>Progress toward {s["target_reduction_pct"]:.0f}% reduction by {s["target_year"]}</span>'
             f'<span>{progress*100:.0f}%</span></div>'
-            f'<div class="gsm-progress-track">'
-            f'<div class="gsm-progress-fill" style="width:{min(progress*100,100):.1f}%"></div>'
+            f'<div class="mck-progress-track">'
+            f'<div class="mck-progress-fill" style="width:{min(progress*100,100):.1f}%"></div>'
             f'</div></div>',
             unsafe_allow_html=True,
         )
@@ -1763,5 +1760,3 @@ METHODOLOGY
     st.divider()
     with st.expander("Report Preview"):
         st.text(report_text)
-
-  
