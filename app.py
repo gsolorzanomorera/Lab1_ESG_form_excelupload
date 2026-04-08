@@ -346,7 +346,7 @@ COUNTRY_EF = {
 #  then maps specific cell addresses to session_state variables.
 #
 #  The cell map below matches the exact structure of Lab1_dashboard.xlsx:
-#    - Assumptions sheet: B9 = company name, B15 = revenue, etc.
+#    - Inputs sheet: B9 = company name, B15 = revenue, etc.
 #    - Scope 1 sheet: C6 = natural gas MMBtu, C21 = diesel fleet litres, etc.
 #    - Scope 2 sheet: C23 = total electricity, F23 = RECs, H32 = LB total, etc.
 #    - Scope 3 sheet: computed totals from J33, J42, J54, I68, J70
@@ -411,7 +411,7 @@ def parse_excel(uploaded_file):
     sheet_names = wb.sheetnames  # list of all sheet tab names in the workbook
 
     # ══════════════════════════════════════════════════════════════════════════
-    #  SHEET 1: ASSUMPTIONS
+    #  SHEET 1: Inputs
     #  Cell map — exact addresses from Lab1_dashboard.xlsx:
     #    B9  = company name
     #    B10 = industry / sector
@@ -424,8 +424,8 @@ def parse_excel(uploaded_file):
     #    E28 = GWP for HFC-134a
     #    E29 = GWP for SF₆
     # ══════════════════════════════════════════════════════════════════════════
-    if "Assumptions" in sheet_names:
-        ws = wb["Assumptions"]
+    if "Inputs" in sheet_names:
+        ws = wb["Inputs"]
 
         name = safe_str(ws["B9"].value)
         if name:
@@ -1003,7 +1003,7 @@ with st.sidebar:
 
     # ── Navigation ────────────────────────────────────────────────────────────
     page = st.radio("Nav", [
-        "Assumptions",
+        "Inputs",
         "Scope 1 — Direct",
         "Scope 2 — Purchased Energy",
         "Scope 3 — Value Chain",
@@ -1056,11 +1056,11 @@ with st.sidebar:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  PAGE 1: ASSUMPTIONS
+#  PAGE 1: Inputs
 # ══════════════════════════════════════════════════════════════════════════════
-if page == "Assumptions":
+if page == "Inputs":
     section_head(
-        "Step 01", "Central Assumptions",
+        "Step 01", "Central Inputs",
         "All calculation sheets reference these inputs. "
         "Upload an Excel file on the left to auto-populate, or fill in manually.",
     )
@@ -1114,7 +1114,7 @@ if page == "Assumptions":
 
     st.divider()
     st.markdown("## GWP Factors — IPCC AR6 (2021)")
-    st.caption("Auto-populated from Assumptions!E25–E29 when Excel is imported. "
+    st.caption("Auto-populated from Inputs!E25–E29 when Excel is imported. "
                "Adjust only if your regulatory regime requires AR5 or AR4.")
     gc1, gc2, gc3, gc4 = st.columns(4)
     with gc1:
@@ -1540,7 +1540,7 @@ elif page == "Dashboard":
         if rev > 0 or emp > 0:
             st.markdown(tbl2, unsafe_allow_html=True)
         else:
-            st.caption("Enter revenue and employees in Assumptions to see intensity ratios.")
+            st.caption("Enter revenue and employees in Inputs to see intensity ratios.")
 
         st.markdown("<br>", unsafe_allow_html=True)
         st.markdown("## Renewable Energy")
@@ -1675,7 +1675,7 @@ SECTION 3 — CARBON INTENSITY
 
     report_text += f"""
 
-SECTION 4 — ASSUMPTIONS
+SECTION 4 — Inputs
 {'─'*65}
   Revenue                    ${rev:>12,.0f}M USD
   Employees                  {emp:>12,} FTE
