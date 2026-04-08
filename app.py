@@ -3,7 +3,7 @@
 #  Streamlit web application
 #  Based on: GHG Protocol Corporate Standard
 #
-#  NEW in this version:
+#  in this version:
 #    - Upload an Excel workbook (matching the Lab1_dashboard.xlsx template)
 #    - The app reads every input cell automatically using openpyxl
 #    - All session_state variables are overwritten with the Excel values
@@ -881,7 +881,7 @@ with st.sidebar:
         'font-weight: 900;'
         'font-size: 1.55rem;'
         'letter-spacing: 0.04em;'
-        'color: #CC0000;'          # Illinois Tech scarlet
+        'color: #D12030;'          # Illinois Tech scarlet
         'line-height: 1.1;'
         'margin-bottom: 5px;'
         '">'
