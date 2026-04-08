@@ -858,66 +858,6 @@ def section_head(eyebrow, title, caption=""):
 with st.sidebar:
 
     # ── Illinois Tech branding block ──────────────────────────────────────────
-    # The logo is fetched directly from Illinois Tech's official CDN so no
-    # local file is needed — it always loads the current institutional mark.
-    # We wrap everything in a flex column to keep the layout tight and clean.
-    #
-    # Structure (top → bottom):
-    #   1. Illinois Tech logo (white version, pulled from official URL)
-    #   2. Thin dividing rule (rgba white, very subtle)
-    #   3. Module / course label  ← "SUSTAINABILITY ANALYTICS" eyebrow
-    #   4. App title              ← "GHG Inventory" in Playfair Display
-    #   5. Framework sub-label    ← "GHG Protocol Framework"
-    st.markdown("""
-    <div style="padding:20px 0 12px 0;">
-
-      <!-- ① Illinois Tech logo ─────────────────────────────────────────────
-           We use the official white-on-transparent SVG mark from IIT's CDN.
-           If the URL ever changes, replace src= with the new URL or a
-           base64-encoded string of the logo.
-           object-fit:contain keeps the aspect ratio; max-width prevents it
-           from stretching wider than the sidebar panel.                     -->
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-        <img
-          src="https://www.iit.edu/sites/default/files/2021-05/iit-logo-white.svg"
-          alt="Illinois Institute of Technology"
-          style="height:36px;width:auto;max-width:160px;object-fit:contain;
-                 filter:brightness(0) invert(1);"
-          onerror="this.style.display='none'"
-        />
-      </div>
-
-      <!-- ② Thin separator between logo and text block ──────────────────── -->
-      <div style="border-top:1px solid rgba(255,255,255,0.18);margin-bottom:12px;"></div>
-
-      <!-- ③ Module / course eyebrow label ────────────────────────────────── -->
-      <div style="font-family:'Source Sans 3',sans-serif;
-                  font-size:9px;font-weight:700;
-                  text-transform:uppercase;letter-spacing:0.18em;
-                  color:#7DA3CC;margin-bottom:5px;">
-        Sustainability Analytics
-      </div>
-
-      <!-- ④ App title in Playfair Display serif ───────────────────────────── -->
-      <div style="font-family:'Playfair Display',serif;
-                  font-size:1.15rem;font-weight:700;
-                  color:#FFFFFF;letter-spacing:-0.01em;
-                  line-height:1.2;margin-bottom:4px;">
-        GHG Carbon Inventory
-      </div>
-
-      <!-- ⑤ Framework sub-label ──────────────────────────────────────────── -->
-      <div style="font-size:10px;color:#7DA3CC;
-                  text-transform:uppercase;letter-spacing:0.12em;">
-        GHG Protocol Framework
-      </div>
-
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.divider()
-
-    # ── Illinois Tech branding block ──────────────────────────────────────────
     # Rendered as pure HTML/CSS text — no image file, no CDN, no black box.
     # Matches the screenshot exactly:
     #   - "ILLINOIS TECH" in Illinois Tech scarlet (#CC0000), bold, large
