@@ -1077,73 +1077,111 @@ if page == "Inputs":
         "Upload an Excel file on the left to auto-populate, or fill in manually.",
     )
 
+    # ── HOW WIDGET SYNC WORKS ──────────────────────────────────────────────────
+    # Every widget below uses key="session_state_key_name".
+    # When Streamlit sees key="company_name", it:
+    #   1. Reads the CURRENT value from st.session_state["company_name"] to
+    #      display in the widget (so Excel imports appear immediately).
+    #   2. Writes the user's edits back to st.session_state["company_name"]
+    #      automatically — no manual assignment needed.
+    # This is the ONLY pattern that makes both manual editing AND Excel import
+    # work reliably. The old pattern (widget → session_state assignment without
+    # key=) caused the widget's internal cache to override parse_excel() writes.
+    # ──────────────────────────────────────────────────────────────────────────
+
+    INDUSTRY_OPTIONS = [
+        "Technology", "Manufacturing", "Retail & Consumer", "Financial Services",
+        "Healthcare & Pharma", "Energy & Utilities", "Real Estate",
+        "Transportation & Logistics", "Food & Beverage", "Other",
+    ]
+    COUNTRY_OPTIONS = list(COUNTRY_EF.keys())
+
     col1, col2 = st.columns(2, gap="large")
 
     with col1:
         st.markdown("## Company Profile")
-        st.session_state["company_name"] = st.text_input(
-            "Legal Entity / Company Name", st.session_state["company_name"])
-        st.session_state["industry"] = st.selectbox("Industry Sector", [
-            "Technology", "Manufacturing", "Retail & Consumer", "Financial Services",
-            "Healthcare & Pharma", "Energy & Utilities", "Real Estate",
-            "Transportation & Logistics", "Food & Beverage", "Other",
-        ], index=max(0, ["Technology","Manufacturing","Retail & Consumer","Financial Services",
-            "Healthcare & Pharma","Energy & Utilities","Real Estate",
-            "Transportation & Logistics","Food & Beverage","Other"
-        ].index(st.session_state["industry"]) if st.session_state["industry"] in [
-            "Technology","Manufacturing","Retail & Consumer","Financial Services",
-            "Healthcare & Pharma","Energy & Utilities","Real Estate",
-            "Transportation & Logistics","Food & Beverage","Other"] else 0))
-        st.session_state["country"] = st.selectbox(
-            "Primary Country of Operations", list(COUNTRY_EF.keys()),
-            index=list(COUNTRY_EF.keys()).index(st.session_state["country"])
-                  if st.session_state["country"] in COUNTRY_EF else 0)
-        st.session_state["reporting_year"] = st.number_input(
-            "Reporting Year", 2000, 2030, st.session_state["reporting_year"])
+
+        # key="company_name" binds this widget directly to session_state["company_name"].
+        # parse_excel() writes to session_state["company_name"] → widget shows new value
+        # on next rerun. User edits write back to session_state["company_name"] directly.
+        st.text_input(
+            "Legal Entity / Company Name",
+            key="company_name",
+        )
+
+        # For selectbox, key= also works — Streamlit stores the selected VALUE
+        # (not the index) in session_state when key= is used.
+        # We guard the index lookup so a value from Excel that isn't in the list
+        # defaults to index 0 instead of crashing.
+        _industry_idx = (
+            INDUSTRY_OPTIONS.index(st.session_state["industry"])
+            if st.session_state["industry"] in INDUSTRY_OPTIONS else 0
+        )
+        st.selectbox(
+            "Industry Sector",
+            INDUSTRY_OPTIONS,
+            index=_industry_idx,
+            key="industry",
+        )
+
+        _country_idx = (
+            COUNTRY_OPTIONS.index(st.session_state["country"])
+            if st.session_state["country"] in COUNTRY_OPTIONS else 0
+        )
+        st.selectbox(
+            "Primary Country of Operations",
+            COUNTRY_OPTIONS,
+            index=_country_idx,
+            key="country",
+        )
+
+        st.number_input(
+            "Reporting Year",
+            min_value=2000, max_value=2030,
+            key="reporting_year",
+        )
 
     with col2:
         st.markdown("## Financial Metrics")
         st.caption("Used to calculate carbon intensity ratios.")
-        st.session_state["revenue_musd"] = st.number_input(
-            "Annual Revenue (USD Millions)", 0.0,
-            value=float(st.session_state["revenue_musd"]), step=100.0)
-        st.session_state["employees"] = st.number_input(
-            "Full-Time Equivalent Employees (FTE)", 0,
-            value=int(st.session_state["employees"]), step=100)
+
+        st.number_input(
+            "Annual Revenue (USD Millions)",
+            min_value=0.0, step=100.0,
+            key="revenue_musd",
+        )
+        st.number_input(
+            "Full-Time Equivalent Employees (FTE)",
+            min_value=0, step=100,
+            key="employees",
+        )
 
         st.markdown("## Prior Year Actuals")
-        st.caption("Used for year-on-year comparison. Auto-populated from Reduction Trajectory sheet if available.")
+        st.caption("Used for year-on-year comparison. Auto-populated from Excel if available.")
         pa, pb, pc = st.columns(3)
         with pa:
-            st.session_state["prior_s1"] = st.number_input(
-                "Scope 1 (tCO₂e)", 0.0, value=float(st.session_state["prior_s1"]))
+            st.number_input("Scope 1 (tCO₂e)", min_value=0.0, key="prior_s1")
         with pb:
-            st.session_state["prior_s2mb"] = st.number_input(
-                "Scope 2 MB (tCO₂e)", 0.0, value=float(st.session_state["prior_s2mb"]))
+            st.number_input("Scope 2 MB (tCO₂e)", min_value=0.0, key="prior_s2mb")
         with pc:
-            st.session_state["prior_s3"] = st.number_input(
-                "Scope 3 (tCO₂e)", 0.0, value=float(st.session_state["prior_s3"]))
+            st.number_input("Scope 3 (tCO₂e)", min_value=0.0, key="prior_s3")
 
     st.divider()
     st.markdown("## GWP Factors — IPCC AR6 (2021)")
-    st.caption("Auto-populated from Inputs!E25–E29 when Excel is imported. "
+    st.caption("Auto-populated from Excel Inputs sheet. "
                "Adjust only if your regulatory regime requires AR5 or AR4.")
     gc1, gc2, gc3, gc4 = st.columns(4)
     with gc1:
-        st.session_state["gwp_ch4_fossil"] = st.number_input(
-            "CH₄ fossil GWP", value=float(st.session_state["gwp_ch4_fossil"]))
+        st.number_input("CH₄ fossil GWP", min_value=0.0, key="gwp_ch4_fossil")
         st.markdown('<span class="ef-chip">AR5: 25 | AR6: 29.8</span>', unsafe_allow_html=True)
     with gc2:
-        st.session_state["gwp_n2o"] = st.number_input(
-            "N₂O GWP", value=float(st.session_state["gwp_n2o"]))
+        st.number_input("N₂O GWP", min_value=0.0, key="gwp_n2o")
         st.markdown('<span class="ef-chip">AR5: 298 | AR6: 273</span>', unsafe_allow_html=True)
     with gc3:
-        st.session_state["gwp_hfc134a"] = st.number_input(
-            "HFC-134a GWP", value=float(st.session_state["gwp_hfc134a"]))
+        st.number_input("HFC-134a GWP", min_value=0.0, key="gwp_hfc134a")
         st.markdown('<span class="ef-chip">AR5: 1430 | AR6: 1526</span>', unsafe_allow_html=True)
     with gc4:
-        st.session_state["gwp_sf6"] = st.number_input(
-            "SF₆ GWP", value=float(st.session_state["gwp_sf6"]))
+        st.number_input("SF₆ GWP", min_value=0.0, key="gwp_sf6")
         st.markdown('<span class="ef-chip">AR5: 22800 | AR6: 25200</span>', unsafe_allow_html=True)
 
     st.divider()
@@ -1151,14 +1189,11 @@ if page == "Inputs":
     st.caption("Auto-populated from Trend Analysis sheet if present.")
     ta, tb, tc = st.columns(3)
     with ta:
-        st.session_state["target_year"] = st.number_input(
-            "Target Year", 2025, 2060, int(st.session_state["target_year"]))
+        st.number_input("Target Year", min_value=2025, max_value=2060, key="target_year")
     with tb:
-        st.session_state["target_reduction_pct"] = st.slider(
-            "Reduction vs Baseline (%)", 0, 100, int(st.session_state["target_reduction_pct"]))
+        st.slider("Reduction vs Baseline (%)", 0, 100, key="target_reduction_pct")
     with tc:
-        st.session_state["target_baseline"] = st.number_input(
-            "Baseline Emissions (tCO₂e)", 0.0, value=float(st.session_state["target_baseline"]))
+        st.number_input("Baseline Emissions (tCO₂e)", min_value=0.0, key="target_baseline")
 
     if st.session_state["target_baseline"] > 0:
         target_val = st.session_state["target_baseline"] * (
@@ -1173,9 +1208,11 @@ if page == "Inputs":
             unsafe_allow_html=True,
         )
 
-    st.session_state["benchmark_revenue_intensity"] = st.number_input(
-        "Industry Benchmark — Revenue Intensity (tCO₂e / $M revenue)", 0.0,
-        value=float(st.session_state["benchmark_revenue_intensity"]))
+    st.number_input(
+        "Industry Benchmark — Revenue Intensity (tCO₂e / $M revenue)",
+        min_value=0.0,
+        key="benchmark_revenue_intensity",
+    )
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -1221,11 +1258,11 @@ elif page == "Scope 1 — Direct":
         with st.expander(f"{label}   —   {ff(row_total)} tCO₂e"):
             ea, eb, ec_ = st.columns([3,2,2])
             with ea:
-                st.session_state[key] = st.number_input(
-                    f"Activity Quantity ({unit})", 0.0,
-                    value=float(st.session_state[key]),
-                    key=f"si_{key}",
-                    step=1.0 if "ton" in unit.lower() else 100.0)
+                st.number_input(
+                    f"Activity Quantity ({unit})",
+                    min_value=0.0,
+                    step=1.0 if "ton" in unit.lower() else 100.0,
+                    key=key)
             with eb:
                 st.markdown(f"<br><span class='ef-chip'>CO₂ EF: {ef_val:.4f} kgCO₂/{unit}</span>", unsafe_allow_html=True)
             with ec_:
@@ -1236,16 +1273,13 @@ elif page == "Scope 1 — Direct":
     st.caption("Source: DEFRA 2023 / EPA 2023 | Excel: Scope 1!C18, C21, C23")
     mb1, mb2, mb3 = st.columns(3)
     with mb1:
-        st.session_state["s1_gasoline_litres"] = st.number_input(
-            "Gasoline / Petrol (Litres)", 0.0, value=float(st.session_state["s1_gasoline_litres"]), step=100.0)
+        st.number_input("Gasoline / Petrol (Litres)", min_value=0.0, step=100.0, key="s1_gasoline_litres")
         st.markdown(f"<span class='ef-chip'>{EF['gasoline_co2']} kgCO₂/L</span>", unsafe_allow_html=True)
     with mb2:
-        st.session_state["s1_diesel_fleet_litres"] = st.number_input(
-            "Diesel Fleet (Litres)", 0.0, value=float(st.session_state["s1_diesel_fleet_litres"]), step=100.0)
+        st.number_input("Diesel Fleet (Litres)", min_value=0.0, step=100.0, key="s1_diesel_fleet_litres")
         st.markdown(f"<span class='ef-chip'>{EF['diesel_co2']} kgCO₂/L</span>", unsafe_allow_html=True)
     with mb3:
-        st.session_state["s1_jet_litres"] = st.number_input(
-            "Aviation Fuel / Jet-A (Litres)", 0.0, value=float(st.session_state["s1_jet_litres"]), step=100.0)
+        st.number_input("Aviation Fuel / Jet-A (Litres)", min_value=0.0, step=100.0, key="s1_jet_litres")
         st.markdown(f"<span class='ef-chip'>{EF['jet_co2']} kgCO₂/L</span>", unsafe_allow_html=True)
 
     st.divider()
@@ -1253,16 +1287,13 @@ elif page == "Scope 1 — Direct":
     st.caption("Source: IPCC AR6 GWP | Excel: Scope 1!C29, C30, C31")
     fc1, fc2, fc3 = st.columns(3)
     with fc1:
-        st.session_state["s1_hfc134a_kg"] = st.number_input(
-            "HFC-134a leaked (kg)", 0.0, value=float(st.session_state["s1_hfc134a_kg"]))
+        st.number_input("HFC-134a leaked (kg)", min_value=0.0, key="s1_hfc134a_kg")
         st.markdown(f"<span class='ef-chip'>GWP: {st.session_state['gwp_hfc134a']}</span>", unsafe_allow_html=True)
     with fc2:
-        st.session_state["s1_hfc410a_kg"] = st.number_input(
-            "HFC-410A leaked (kg)", 0.0, value=float(st.session_state["s1_hfc410a_kg"]))
+        st.number_input("HFC-410A leaked (kg)", min_value=0.0, key="s1_hfc410a_kg")
         st.markdown(f"<span class='ef-chip'>GWP: {EF['hfc410a_gwp']}</span>", unsafe_allow_html=True)
     with fc3:
-        st.session_state["s1_sf6_kg"] = st.number_input(
-            "SF₆ leaked (kg)", 0.0, value=float(st.session_state["s1_sf6_kg"]))
+        st.number_input("SF₆ leaked (kg)", min_value=0.0, key="s1_sf6_kg")
         st.markdown(f"<span class='ef-chip'>GWP: {st.session_state['gwp_sf6']}</span>", unsafe_allow_html=True)
 
     st.divider()
@@ -1315,26 +1346,20 @@ elif page == "Scope 2 — Purchased Energy":
     st.markdown("## Part A — Purchased Electricity")
     ea, eb, ec = st.columns(3)
     with ea:
-        st.session_state["s2_elec_mwh"] = st.number_input(
-            "Total Electricity Consumed (MWh)", 0.0,
-            value=float(st.session_state["s2_elec_mwh"]), step=100.0)
+        st.number_input("Total Electricity Consumed (MWh)", min_value=0.0, step=100.0, key="s2_elec_mwh")
     with eb:
         suggested = COUNTRY_EF.get(st.session_state["country"], 386)
-        st.session_state["s2_grid_ef"] = st.number_input(
-            "Location-Based Grid EF (kgCO₂e/MWh)", 0.0,
-            value=float(st.session_state["s2_grid_ef"]), step=1.0)
+        st.number_input("Location-Based Grid EF (kgCO₂e/MWh)", min_value=0.0, step=1.0, key="s2_grid_ef")
         st.markdown(f"<span class='ef-chip'>Country default: {suggested}</span>", unsafe_allow_html=True)
     with ec:
-        st.session_state["s2_market_ef"] = st.number_input(
-            "Market-Based Supplier EF (kgCO₂e/MWh)", 0.0,
-            value=float(st.session_state["s2_market_ef"]), step=1.0)
+        st.number_input("Market-Based Supplier EF (kgCO₂e/MWh)", min_value=0.0, step=1.0, key="s2_market_ef")
 
-    st.session_state["s2_recs_mwh"] = st.slider(
-        "RECs / PPAs Covered (MWh)", 0.0,
-        max(float(st.session_state["s2_elec_mwh"]), 1.0),
-        min(float(st.session_state["s2_recs_mwh"]), max(float(st.session_state["s2_elec_mwh"]), 0.0)),
-        step=100.0,
-    )
+    # The slider max must be set dynamically from the current electricity value.
+    # We clamp the stored value to the current max to avoid Streamlit errors.
+    _recs_max = max(float(st.session_state["s2_elec_mwh"]), 1.0)
+    if float(st.session_state.get("s2_recs_mwh", 0.0)) > _recs_max:
+        st.session_state["s2_recs_mwh"] = _recs_max
+    st.slider("RECs / PPAs Covered (MWh)", 0.0, _recs_max, step=100.0, key="s2_recs_mwh")
 
     st.markdown(
         f'<div class="insight-box"><strong>Net metered electricity:</strong> '
@@ -1346,9 +1371,7 @@ elif page == "Scope 2 — Purchased Energy":
     st.divider()
     st.markdown("## Part B — Purchased Steam, Heat & Cooling")
     st.caption("Excel: Scope 2!C27")
-    st.session_state["s2_steam_gj"] = st.number_input(
-        "Purchased Steam / Heat / Cooling (GJ)", 0.0,
-        value=float(st.session_state["s2_steam_gj"]))
+    st.number_input("Purchased Steam / Heat / Cooling (GJ)", min_value=0.0, key="s2_steam_gj")
     st.markdown(f"<span class='ef-chip'>EF: {EF['s2_steam_ef']} kgCO₂e/GJ</span>", unsafe_allow_html=True)
 
     st.divider()
@@ -1415,21 +1438,15 @@ elif page == "Scope 3 — Value Chain":
             if has_two:
                 ca, cb, cc = st.columns([3,2,2])
                 with ca:
-                    st.session_state[k1] = st.number_input(
-                        lbl1, 0.0, value=float(st.session_state[k1]),
-                        step=1000.0, key=f"s3a_{k1}")
+                    st.number_input(lbl1, min_value=0.0, step=1000.0, key=k1)
                 with cb:
-                    st.session_state[k2] = st.number_input(
-                        lbl2, 0.0, value=float(st.session_state[k2]),
-                        step=0.01, key=f"s3b_{k2}")
+                    st.number_input(lbl2, min_value=0.0, step=0.01, key=k2)
                 with cc:
                     st.metric("Result", f"{ff(val)} tCO₂e")
             else:
                 ca, cb = st.columns([3,2])
                 with ca:
-                    st.session_state[k1] = st.number_input(
-                        lbl1, 0.0, value=float(st.session_state[k1]),
-                        step=1000.0, key=f"s3a_{k1}")
+                    st.number_input(lbl1, min_value=0.0, step=1000.0, key=k1)
                 with cb:
                     st.metric("Result", f"{ff(val)} tCO₂e")
             st.caption(f"Methodology: {note}")
@@ -1747,11 +1764,4 @@ METHODOLOGY
     with st.expander("Report Preview"):
         st.text(report_text)
 
-    st.divider()
-    st.markdown("## Restore Saved Inputs")
-    st.caption("Upload a previously saved .json file to reload all inputs.")
-    uploaded_json = st.file_uploader("Upload JSON", type="json", label_visibility="collapsed")
-    if uploaded_json:
-        for k, v in json.load(uploaded_json).items():
-            st.session_state[k] = v
-        st.success("Inputs restored. Navigate to any section to review.")
+  
