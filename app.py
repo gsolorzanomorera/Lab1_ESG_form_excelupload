@@ -1,5 +1,5 @@
 # ══════════════════════════════════════════════════════════════════════════════
-#  GHG CARBON INVENTORY — Gaudy Solorzano, Illinois Tech
+#  GHG CARBON INVENTORY — gsolorzanomorera Style
 #  Streamlit web application
 #  Based on: GHG Protocol Corporate Standard
 #
@@ -35,7 +35,7 @@ st.set_page_config(
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  gsolorzanomorera-STYLE CSS
+#  GSOLORZANOMORERA-STYLE CSS
 #  Injected as raw HTML. Every rule is explained inline.
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown("""
@@ -411,7 +411,7 @@ def parse_excel(uploaded_file):
     sheet_names = wb.sheetnames  # list of all sheet tab names in the workbook
 
     # ══════════════════════════════════════════════════════════════════════════
-    #  SHEET 1: Inputs
+    #  SHEET 1: INPUTS
     #  Cell map — exact addresses from Lab1_dashboard.xlsx:
     #    B9  = company name
     #    B10 = industry / sector
@@ -874,17 +874,21 @@ with st.sidebar:
 
     # Official IIT scarlet-and-white wordmark, redrawn as a white-only SVG.
     # viewBox="0 0 300 80" → wide aspect ratio matches the IIT horizontal mark.
-    _IIT_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 80">
-      <!-- Scarlet square block -->
-      <rect x="0" y="8" width="64" height="64" fill="#CC0000"/>
-      <!-- White "IIT" letterforms inside the block -->
-      <text x="8" y="58" font-family="Arial Black,Arial,sans-serif"
-            font-weight="900" font-size="46" fill="#FFFFFF" letter-spacing="-2">IIT</text>
-      <!-- Illinois Institute of Technology wordmark to the right -->
-      <text x="76" y="34" font-family="Arial,sans-serif"
-            font-weight="700" font-size="13" fill="#FFFFFF" letter-spacing="0.5">ILLINOIS INSTITUTE</text>
-      <text x="76" y="52" font-family="Arial,sans-serif"
-            font-weight="700" font-size="13" fill="#FFFFFF" letter-spacing="0.5">OF TECHNOLOGY</text>
+    # Logo SVG matches the Illinois Tech brand shown in the course header:
+    # Left: scarlet IIT block with white letterforms
+    # Right: "ILLINOIS TECH" in scarlet bold + course subtitle in white
+    _IIT_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 90">
+      <!-- ── Scarlet square block (left) ── -->
+      <rect x="0" y="5" width="62" height="62" fill="#CC0000"/>
+      <!-- White "IIT" inside the block -->
+      <text x="6" y="54" font-family="Arial Black,Arial,sans-serif"
+            font-weight="900" font-size="44" fill="#FFFFFF" letter-spacing="-2">IIT</text>
+      <!-- ── "ILLINOIS TECH" in scarlet to the right of the block ── -->
+      <text x="72" y="42" font-family="Arial Black,Arial,sans-serif"
+            font-weight="900" font-size="26" fill="#CC0000" letter-spacing="0.5">ILLINOIS TECH</text>
+      <!-- ── Course subtitle in white below ── -->
+      <text x="72" y="62" font-family="Arial,sans-serif"
+            font-weight="400" font-size="11" fill="#FFFFFF" letter-spacing="0.3">SAM 503 ESG Analytics &amp; Management</text>
     </svg>"""
 
     # base64-encode the SVG bytes so we can use it as an <img> src.
@@ -900,7 +904,7 @@ with st.sidebar:
       <img
         src="{_logo_src}"
         alt="Illinois Institute of Technology"
-        style="height:44px;width:auto;max-width:200px;
+        style="height:72px;width:auto;max-width:240px;
                object-fit:contain;display:block;margin-bottom:12px;"
       />
 
@@ -1070,7 +1074,7 @@ with st.sidebar:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  PAGE 1: Inputs
+#  PAGE 1: INPUTS
 # ══════════════════════════════════════════════════════════════════════════════
 if page == "Inputs":
     section_head(
@@ -1689,7 +1693,7 @@ SECTION 3 — CARBON INTENSITY
 
     report_text += f"""
 
-SECTION 4 — Inputs
+SECTION 4 — INPUTS
 {'─'*65}
   Revenue                    ${rev:>12,.0f}M USD
   Employees                  {emp:>12,} FTE
@@ -1749,11 +1753,4 @@ METHODOLOGY
     with st.expander("Report Preview"):
         st.text(report_text)
 
-    st.divider()
-    st.markdown("## Restore Saved Inputs")
-    st.caption("Upload a previously saved .json file to reload all inputs.")
-    uploaded_json = st.file_uploader("Upload JSON", type="json", label_visibility="collapsed")
-    if uploaded_json:
-        for k, v in json.load(uploaded_json).items():
-            st.session_state[k] = v
-        st.success("Inputs restored. Navigate to any section to review.")
+  
