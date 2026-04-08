@@ -1,5 +1,5 @@
 # ══════════════════════════════════════════════════════════════════════════════
-#  GHG CARBON INVENTORY — Gaudy Solorzano, Illinois Tech 
+#  GHG CARBON INVENTORY — Gaudy Solorzano, Illinois Tech
 #  Streamlit web application
 #  Based on: GHG Protocol Corporate Standard
 #
@@ -35,8 +35,8 @@ st.set_page_config(
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  Gsolorzanomorera prefered-STYLE CSS
-#  Injected as raw HTML. 
+#  Gsolorzanomorera-STYLE CSS
+#  Injected as raw HTML. Every rule is explained inline.
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown("""
 <style>
@@ -346,7 +346,7 @@ COUNTRY_EF = {
 #  then maps specific cell addresses to session_state variables.
 #
 #  The cell map below matches the exact structure of Lab1_dashboard.xlsx:
-#    - Assumptions sheet: B9 = company name, B15 = revenue, etc.
+#    - Inputs sheet: B9 = company name, B15 = revenue, etc.
 #    - Scope 1 sheet: C6 = natural gas MMBtu, C21 = diesel fleet litres, etc.
 #    - Scope 2 sheet: C23 = total electricity, F23 = RECs, H32 = LB total, etc.
 #    - Scope 3 sheet: computed totals from J33, J42, J54, I68, J70
@@ -411,7 +411,7 @@ def parse_excel(uploaded_file):
     sheet_names = wb.sheetnames  # list of all sheet tab names in the workbook
 
     # ══════════════════════════════════════════════════════════════════════════
-    #  SHEET 1: ASSUMPTIONS
+    #  SHEET 1: Inputs
     #  Cell map — exact addresses from Lab1_dashboard.xlsx:
     #    B9  = company name
     #    B10 = industry / sector
@@ -424,8 +424,8 @@ def parse_excel(uploaded_file):
     #    E28 = GWP for HFC-134a
     #    E29 = GWP for SF₆
     # ══════════════════════════════════════════════════════════════════════════
-    if "Assumptions" in sheet_names:
-        ws = wb["Assumptions"]
+    if "Inputs" in sheet_names:
+        ws = wb["Inputs"]
 
         name = safe_str(ws["B9"].value)
         if name:
@@ -858,39 +858,75 @@ def section_head(eyebrow, title, caption=""):
 with st.sidebar:
 
     # ── Illinois Tech branding block ──────────────────────────────────────────
-    # The logo is fetched directly from Illinois Tech's official CDN so no
-    # local file is needed — it always loads the current institutional mark.
-    # We wrap everything in a flex column to keep the layout tight and clean.
+    # HOW THE LOGO LOADS (two-tier strategy):
     #
-    # Structure (top → bottom):
-    #   1. Illinois Tech logo (white version, pulled from official URL)
-    #   2. Thin dividing rule (rgba white, very subtle)
-    #   3. Module / course label  ← "SUSTAINABILITY ANALYTICS" eyebrow
-    #   4. App title              ← "GHG Inventory" in Playfair Display
-    #   5. Framework sub-label    ← "GHG Protocol Framework"
-    st.markdown("""
+    # Tier 1 — Local file (preferred):
+    #   Place "iit_logo.png" in the same folder as app.py.
+    #   The code reads it, converts it to a base64 data-URI, and embeds it
+    #   directly in the HTML <img> tag. This works 100% offline, on Streamlit
+    #   Cloud, and behind any firewall — no external request is ever made.
+    #
+    # Tier 2 — CDN fallback (automatic):
+    #   If "iit_logo.png" is not found next to app.py, the code falls back to
+    #   the official IIT white SVG served from iit.edu.
+    #   The HTML onerror handler hides the tag silently if that URL also fails,
+    #   so the rest of the sidebar branding always renders cleanly.
+    #
+    # Logo colour note:
+    #   filter:brightness(0) invert(1) converts any logo colour to pure white.
+    #   This means you can drop in any version of the IIT logo (red, black, or
+    #   white) and it will always display correctly on the dark navy sidebar.
+
+    import base64  # base64 is part of Python's standard library — no pip install needed
+    import os      # os gives us path utilities to locate the logo file
+
+    # os.path.dirname(__file__) returns the directory containing app.py.
+    # os.path.join builds the full path: e.g. /home/user/ghg_calculator/iit_logo.png
+    _logo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "iit_logo.png")
+
+    if os.path.exists(_logo_path):
+        # ── Tier 1: embed the local file as a base64 data-URI ─────────────
+        # "rb" opens the file in binary mode (required for images).
+        # base64.b64encode() converts the raw bytes to a base64 string.
+        # .decode() turns those bytes into a regular Python str for the f-string.
+        with open(_logo_path, "rb") as _f:
+            _logo_b64 = base64.b64encode(_f.read()).decode()
+        # The src value is a self-contained data-URI:
+        # "data:image/png;base64,<encoded bytes>"
+        # The browser treats this exactly like a normal external URL.
+        _logo_src  = f"data:image/png;base64,{_logo_b64}"
+        _logo_type = "image/png"
+    else:
+        # ── Tier 2: fall back to the official IIT CDN SVG ─────────────────
+        # This URL points to the white-on-transparent version of the IIT mark.
+        _logo_src  = "https://www.iit.edu/sites/default/files/2021-05/iit-logo-white.svg"
+        _logo_type = "image/svg+xml"
+
+    # Build the full sidebar header HTML.
+    # We use an f-string so _logo_src is interpolated at render time.
+    st.markdown(f"""
     <div style="padding:20px 0 12px 0;">
 
-      <!-- ① Illinois Tech logo ─────────────────────────────────────────────
-           We use the official white-on-transparent SVG mark from IIT's CDN.
-           If the URL ever changes, replace src= with the new URL or a
-           base64-encoded string of the logo.
-           object-fit:contain keeps the aspect ratio; max-width prevents it
-           from stretching wider than the sidebar panel.                     -->
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-        <img
-          src="https://www.iit.edu/sites/default/files/2021-05/iit-logo-white.svg"
-          alt="Illinois Institute of Technology"
-          style="height:36px;width:auto;max-width:160px;object-fit:contain;
-                 filter:brightness(0) invert(1);"
-          onerror="this.style.display='none'"
-        />
-      </div>
+      <!-- ① Logo image ───────────────────────────────────────────────────────
+           height:38px fixes the display height; width:auto preserves the
+           aspect ratio regardless of the original image dimensions.
+           filter:brightness(0) invert(1) forces the image to pure white so
+           it always reads clearly on the navy sidebar background.
+           onerror hides the tag if both local and CDN sources fail.         -->
+      <img
+        src="{_logo_src}"
+        alt="Illinois Institute of Technology"
+        style="height:38px;width:auto;max-width:170px;
+               object-fit:contain;display:block;margin-bottom:12px;
+               filter:brightness(0) invert(1);"
+        onerror="this.style.display='none'"
+      />
 
-      <!-- ② Thin separator between logo and text block ──────────────────── -->
-      <div style="border-top:1px solid rgba(255,255,255,0.18);margin-bottom:12px;"></div>
+      <!-- ② Thin separator rule ──────────────────────────────────────────── -->
+      <div style="border-top:1px solid rgba(255,255,255,0.18);
+                  margin-bottom:12px;"></div>
 
-      <!-- ③ Module / course eyebrow label ────────────────────────────────── -->
+      <!-- ③ Course / module eyebrow ──────────────────────────────────────── -->
       <div style="font-family:'Source Sans 3',sans-serif;
                   font-size:9px;font-weight:700;
                   text-transform:uppercase;letter-spacing:0.18em;
@@ -898,7 +934,7 @@ with st.sidebar:
         Sustainability Analytics
       </div>
 
-      <!-- ④ App title in Playfair Display serif ───────────────────────────── -->
+      <!-- ④ App title ────────────────────────────────────────────────────── -->
       <div style="font-family:'Playfair Display',serif;
                   font-size:1.15rem;font-weight:700;
                   color:#FFFFFF;letter-spacing:-0.01em;
@@ -985,7 +1021,7 @@ with st.sidebar:
 
     # ── Navigation ────────────────────────────────────────────────────────────
     page = st.radio("Nav", [
-        "Assumptions",
+        "Inputs",
         "Scope 1 — Direct",
         "Scope 2 — Purchased Energy",
         "Scope 3 — Value Chain",
@@ -1038,11 +1074,11 @@ with st.sidebar:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  PAGE 1: ASSUMPTIONS
+#  PAGE 1: Inputs
 # ══════════════════════════════════════════════════════════════════════════════
-if page == "Assumptions":
+if page == "Inputs":
     section_head(
-        "Step 01", "Central Assumptions",
+        "Step 01", "Central Inputs",
         "All calculation sheets reference these inputs. "
         "Upload an Excel file on the left to auto-populate, or fill in manually.",
     )
@@ -1096,7 +1132,7 @@ if page == "Assumptions":
 
     st.divider()
     st.markdown("## GWP Factors — IPCC AR6 (2021)")
-    st.caption("Auto-populated from Assumptions!E25–E29 when Excel is imported. "
+    st.caption("Auto-populated from Inputs!E25–E29 when Excel is imported. "
                "Adjust only if your regulatory regime requires AR5 or AR4.")
     gc1, gc2, gc3, gc4 = st.columns(4)
     with gc1:
@@ -1522,7 +1558,7 @@ elif page == "Dashboard":
         if rev > 0 or emp > 0:
             st.markdown(tbl2, unsafe_allow_html=True)
         else:
-            st.caption("Enter revenue and employees in Assumptions to see intensity ratios.")
+            st.caption("Enter revenue and employees in Inputs to see intensity ratios.")
 
         st.markdown("<br>", unsafe_allow_html=True)
         st.markdown("## Renewable Energy")
@@ -1657,7 +1693,7 @@ SECTION 3 — CARBON INTENSITY
 
     report_text += f"""
 
-SECTION 4 — ASSUMPTIONS
+SECTION 4 — Inputs
 {'─'*65}
   Revenue                    ${rev:>12,.0f}M USD
   Employees                  {emp:>12,} FTE
