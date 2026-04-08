@@ -1,5 +1,5 @@
 # ══════════════════════════════════════════════════════════════════════════════
-#  GHG CARBON INVENTORY — McKinsey Style
+#  GHG CARBON INVENTORY — Gaudy Solorzano, Illinois Tech 
 #  Streamlit web application
 #  Based on: GHG Protocol Corporate Standard
 #
@@ -35,8 +35,8 @@ st.set_page_config(
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  McKINSEY-STYLE CSS
-#  Injected as raw HTML. Every rule is explained inline.
+#  Gsolorzanomorera prefered-STYLE CSS
+#  Injected as raw HTML. 
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown("""
 <style>
@@ -47,7 +47,7 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&family=Source+Code+Pro:wght@400;500&display=swap');
 
 /* ── Design tokens (CSS variables) ───────────────────────────────────────────
-   Define the McKinsey colour palette once here; reference everywhere below.   */
+   Define the Gsolorzanomorera colour palette once here; reference everywhere below.   */
 :root {
     --white:     #FFFFFF;
     --off-white: #F7F7F5;
@@ -112,7 +112,7 @@ h2 {
 /* ── Page caption (subtitle beneath the page title) ────────────────────────── */
 .page-caption { font-size: 13px; color: var(--mid-grey); margin-top: 2px; margin-bottom: 20px; }
 
-/* ── KPI Card — the signature McKinsey metric block ────────────────────────────
+/* ── KPI Card — the signature Gsolorzanomorera metric block ────────────────────────────
    No box, no shadow. Just a thick navy top-border and Playfair serif number.  */
 .mck-kpi { border-top: 3px solid var(--navy); padding: 16px 0 12px 0; }
 .mck-kpi-label {
@@ -146,7 +146,7 @@ h2 {
 .success-box ul { margin: 8px 0 0 16px; padding: 0; }
 .success-box li { margin-bottom: 3px; }
 
-/* ── McKinsey data table ────────────────────────────────────────────────────── */
+/* ── Gsolorzanomorera data table ────────────────────────────────────────────────────── */
 .mck-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:8px; }
 .mck-table thead tr { border-top:2px solid var(--navy); border-bottom:1px solid var(--navy); }
 .mck-table thead th {
@@ -175,7 +175,7 @@ h2 {
 .mck-progress-fill  { background:var(--accent); height:6px; }
 
 /* ── Input overrides ─────────────────────────────────────────────────────────
-   Make all Streamlit inputs match the McKinsey off-white / warm-border style. */
+   Make all Streamlit inputs match the Gsolorzanomorera off-white / warm-border style. */
 [data-testid="stNumberInput"] input,
 [data-testid="stTextInput"] input {
     background: var(--off-white) !important; border: 1px solid var(--rule) !important;
@@ -843,7 +843,7 @@ def kpi_html(label, value, unit, delta=None):
 
 
 def section_head(eyebrow, title, caption=""):
-    """Render the standard McKinsey page header: eyebrow → h1 → caption."""
+    """Render the standard Gsolorzanomorera page header: eyebrow → h1 → caption."""
     st.markdown(f'<span class="eyebrow">{eyebrow}</span>', unsafe_allow_html=True)
     st.markdown(f"# {title}")
     if caption:
@@ -1027,15 +1027,7 @@ with st.sidebar:
 #  Displays what was read from each sheet so the user can verify correctness.
 #  The banner auto-disappears once the user edits any field manually.
 # ══════════════════════════════════════════════════════════════════════════════
-if st.session_state.get("excel_imported") and st.session_state.get("excel_summary"):
-    lines = "".join(f"<li>{ln}</li>" for ln in st.session_state["excel_summary"])
-    st.markdown(
-        f'<div class="success-box">'
-        f'<strong>✓ Excel imported: {st.session_state["excel_filename"]}</strong>'
-        f'<ul>{lines}</ul>'
-        f'</div>',
-        unsafe_allow_html=True,
-    )
+# Import summary is shown only on the Export Report page (see PAGE 6)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -1585,7 +1577,48 @@ elif page == "Export Report":
         "Download formatted outputs or save and restore your complete input dataset.",
     )
 
-    # Note the data source in the report if it came from Excel
+    # ── Excel Import Summary ───────────────────────────────────────────────────
+    # Only rendered on this page, and only when a file has been successfully
+    # imported. Presents each import line exactly as the user requested:
+    # bullet-point format with the filename as the header.
+    if s.get("excel_imported") and s.get("excel_summary"):
+
+        # Build bullet rows from the summary list stored during parse_excel().
+        # Each entry in excel_summary is a plain string describing one sheet's data.
+        # We prefix every line with "* " to match the requested format.
+        bullet_rows = "".join(
+            f'<div style="display:flex;gap:8px;padding:3px 0;">'
+            f'<span style="color:var(--accent);font-weight:700;flex-shrink:0;">*</span>'
+            f'<span>{ln}</span></div>'
+            for ln in s["excel_summary"]
+        )
+
+        # Reduction target line — built live from session_state so it always
+        # reflects the current target year and percentage, not a stale snapshot.
+        target_line = (
+            f'<div style="display:flex;gap:8px;padding:3px 0;">'
+            f'<span style="color:var(--accent);font-weight:700;flex-shrink:0;">*</span>'
+            f'<span>Reduction target: <strong>{s["target_reduction_pct"]:.0f}%</strong>'
+            f' by <strong>{s["target_year"]}</strong></span></div>'
+        )
+
+        st.markdown(
+            f'<div class="success-box">'
+            # Header line: checkmark + filename
+            f'<div style="font-weight:700;font-size:14px;color:var(--green);margin-bottom:8px;">'
+            f'✓ Excel imported: {s["excel_filename"]}</div>'
+            # All per-sheet bullet rows
+            f'<div style="font-size:13px;line-height:1.7;color:var(--body);">'
+            f'{bullet_rows}'
+            f'{target_line}'
+            f'</div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+
+        st.divider()
+
+    # Note the data source in the report text file
     source_note = f"Data source: {s['excel_filename']}" if s.get("excel_imported") else "Data source: Manual entry"
 
     report_text = f"""{'═'*65}
@@ -1684,3 +1717,11 @@ METHODOLOGY
     with st.expander("Report Preview"):
         st.text(report_text)
 
+    st.divider()
+    st.markdown("## Restore Saved Inputs")
+    st.caption("Upload a previously saved .json file to reload all inputs.")
+    uploaded_json = st.file_uploader("Upload JSON", type="json", label_visibility="collapsed")
+    if uploaded_json:
+        for k, v in json.load(uploaded_json).items():
+            st.session_state[k] = v
+        st.success("Inputs restored. Navigate to any section to review.")
