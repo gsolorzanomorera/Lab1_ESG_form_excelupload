@@ -856,11 +856,10 @@ def section_head(eyebrow, title, caption=""):
 #  The upload widget is in the sidebar so it's always accessible from any page.
 # ══════════════════════════════════════════════════════════════════════════════
 with st.sidebar:
-
     # ── Illinois Tech branding block ──────────────────────────────────────────
     # Rendered as pure HTML/CSS text — no image file, no CDN, no black box.
     # Matches the screenshot exactly:
-    #   - "ILLINOIS TECH" in Illinois Tech scarlet (#D12030), bold, large
+    #   - "ILLINOIS TECH" in Illinois Tech scarlet (#CC0000), bold, large
     #   - "SAM 503 ESG Analytics & Management" in white, smaller, below
     #   - Both sit flush on the navy sidebar — transparent background
     #
@@ -871,59 +870,67 @@ with st.sidebar:
     #   dependencies — no file needed, works on Streamlit Cloud instantly.
 
     st.markdown(
-    """
-    <div style="padding:20px 0 16px 0;">
+        '<div style="padding:20px 0 16px 0;">'
 
-        <div style="
-            font-family: Arial Black, Arial, Helvetica, sans-serif;
-            font-weight: 900;
-            font-size: 1.55rem;
-            letter-spacing: 0.04em;
-            color: #D12030;
-            line-height: 1.1;
-            margin-bottom: 5px;
-        ">
-            ILLINOIS TECH
-        </div>
+        # ① "ILLINOIS TECH" — scarlet, heavy weight, large tracking
+        # font-family uses a web-safe condensed-style fallback stack that
+        # approximates the Illinois Tech typeface without any web font import.
+        '<div style="'
+        'font-family: Arial Black, Arial, Helvetica, sans-serif;'
+        'font-weight: 900;'
+        'font-size: 1.55rem;'
+        'letter-spacing: 0.04em;'
+        'color: #CC0000;'          # Illinois Tech scarlet
+        'line-height: 1.1;'
+        'margin-bottom: 5px;'
+        '">'
+        'ILLINOIS TECH'
+        '</div>'
 
-        <div style="
-            font-family: Source Sans 3, Arial, sans-serif;
-            font-weight: 400;
-            font-size: 11px;
-            letter-spacing: 0.03em;
-            color: #FFFFFF;
-            margin-bottom: 14px;
-        ">
-            SAM 503 ESG Analytics &amp; Management
-        </div>
+        # ② "SAM 503 ESG Analytics & Management" — white, normal weight, small
+        '<div style="'
+        'font-family: Source Sans 3, Arial, sans-serif;'
+        'font-weight: 400;'
+        'font-size: 11px;'
+        'letter-spacing: 0.03em;'
+        'color: #FFFFFF;'
+        'margin-bottom: 14px;'
+        '">'
+        'SAM 503 ESG Analytics &amp; Management'
+        '</div>'
 
-        <div style="border-top:1px solid rgba(255,255,255,0.18); margin-bottom:12px;"></div>
+        # ③ Thin separator between the IIT brand and the app label
+        '<div style="border-top:1px solid rgba(255,255,255,0.18);'
+        'margin-bottom:12px;"></div>'
 
-        <div style="
-            font-family: Playfair Display, Georgia, serif;
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #FFFFFF;
-            letter-spacing: -0.01em;
-            line-height: 1.2;
-            margin-bottom: 4px;
-        ">
-            GHG Carbon Inventory
-        </div>
+        # ④ App title
+        '<div style="'
+        'font-family: Playfair Display, Georgia, serif;'
+        'font-size: 1.1rem;'
+        'font-weight: 700;'
+        'color: #FFFFFF;'
+        'letter-spacing: -0.01em;'
+        'line-height: 1.2;'
+        'margin-bottom: 4px;'
+        '">'
+        'GHG Carbon Inventory'
+        '</div>'
 
-        <div style="
-            font-size: 10px;
-            color: #7DA3CC;
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
-        ">
-            GHG Protocol Framework
-        </div>
+        # ⑤ Framework sub-label
+        '<div style="'
+        'font-size: 10px;'
+        'color: #7DA3CC;'
+        'text-transform: uppercase;'
+        'letter-spacing: 0.12em;'
+        '">'
+        'GHG Protocol Framework'
+        '</div>'
 
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+        '</div>',
+        unsafe_allow_html=True,
+    )
+
+    st.divider()
 
     # ── Excel Upload Widget     
     
