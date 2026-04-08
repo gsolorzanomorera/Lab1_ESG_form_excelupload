@@ -1100,7 +1100,7 @@ if page == "Inputs":
             value=int(st.session_state["employees"]), step=100)
 
         st.markdown("## Prior Year Actuals")
-        st.caption("Used for year-on-year comparison. Auto-populated from Reduction Trajectory sheet if available.")
+        st.caption("Used for year-on-year comparison. Auto-populated from Excel sheet if available.")
         pa, pb, pc = st.columns(3)
         with pa:
             st.session_state["prior_s1"] = st.number_input(
@@ -1114,7 +1114,7 @@ if page == "Inputs":
 
     st.divider()
     st.markdown("## GWP Factors — IPCC AR6 (2021)")
-    st.caption("Auto-populated from Inputs!E25–E29 when Excel is imported. "
+    st.caption("Auto-populated from Excel is imported. "
                "Adjust only if your regulatory regime requires AR5 or AR4.")
     gc1, gc2, gc3, gc4 = st.columns(4)
     with gc1:
@@ -1136,7 +1136,7 @@ if page == "Inputs":
 
     st.divider()
     st.markdown("## Reduction Target")
-    st.caption("Auto-populated from Trend Analysis sheet if present.")
+    st.caption("Auto-populated from Excel sheet if present.")
     ta, tb, tc = st.columns(3)
     with ta:
         st.session_state["target_year"] = st.number_input(
@@ -1178,7 +1178,7 @@ elif page == "Scope 1 — Direct":
     section_head(
         "Step 02", "Scope 1 — Direct GHG Emissions",
         "Sources directly owned or controlled. "
-        "Auto-populated from Scope 1 sheet columns C (activity quantities).",
+        "Auto-populated from Excel if imported.",
     )
 
     # Import note when data came from Excel
@@ -1284,7 +1284,7 @@ elif page == "Scope 2 — Purchased Energy":
     section_head(
         "Step 03", "Scope 2 — Purchased Energy",
         "GHG Protocol dual reporting: Market-Based (primary) and Location-Based (supplemental). "
-        "Auto-populated from Scope 2!C23, F23, H32, I33.",
+        "Auto-populated from Excel if imported.",
     )
 
     if st.session_state.get("excel_imported"):
@@ -1360,7 +1360,7 @@ elif page == "Scope 3 — Value Chain":
     section_head(
         "Step 04", "Scope 3 — Value Chain Emissions",
         "Indirect upstream and downstream emissions. Typically 70–90% of total footprint. "
-        "Activity data auto-populated from Scope 3 sheet.",
+        "Activity data auto-populated from Excel sheet.",
     )
 
     if st.session_state.get("excel_imported"):
