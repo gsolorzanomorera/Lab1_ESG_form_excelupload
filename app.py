@@ -114,18 +114,18 @@ h2 {
 
 /* ── KPI Card — the signature gsolorzanomorera metric block ────────────────────────────
    No box, no shadow. Just a thick navy top-border and Playfair serif number.  */
-.mck-kpi { border-top: 3px solid var(--navy); padding: 16px 0 12px 0; }
-.mck-kpi-label {
+.gsm-kpi { border-top: 3px solid var(--navy); padding: 16px 0 12px 0; }
+.gsm-kpi-label {
     font-size: 11px; font-weight: 600; text-transform: uppercase;
     letter-spacing: 0.12em; color: var(--mid-grey); margin-bottom: 6px;
 }
-.mck-kpi-value {
+.gsm-kpi-value {
     font-family: 'Playfair Display', serif;
     font-size: 2.3rem; font-weight: 700; color: var(--navy);
     line-height: 1; margin-bottom: 4px;
 }
-.mck-kpi-unit  { font-size: 12px; color: var(--mid-grey); }
-.mck-kpi-delta { font-size: 12px; font-weight: 600; margin-top: 4px; }
+.gsm-kpi-unit  { font-size: 12px; color: var(--mid-grey); }
+.gsm-kpi-delta { font-size: 12px; font-weight: 600; margin-top: 4px; }
 .delta-neg { color: var(--teal); }   /* emissions DOWN = good = teal  */
 .delta-pos { color: var(--amber); }  /* emissions UP   = bad  = amber */
 
@@ -147,20 +147,20 @@ h2 {
 .success-box li { margin-bottom: 3px; }
 
 /* ── gsolorzanomorera data table ────────────────────────────────────────────────────── */
-.mck-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:8px; }
-.mck-table thead tr { border-top:2px solid var(--navy); border-bottom:1px solid var(--navy); }
-.mck-table thead th {
+.gsm-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:8px; }
+.gsm-table thead tr { border-top:2px solid var(--navy); border-bottom:1px solid var(--navy); }
+.gsm-table thead th {
     padding:8px 12px; text-align:left;
     font-size:11px; font-weight:600; text-transform:uppercase;
     letter-spacing:0.08em; color:var(--navy);
 }
-.mck-table thead th.num { text-align:right; }
-.mck-table tbody tr { border-bottom:1px solid var(--rule); }
-.mck-table tbody tr:last-child { border-bottom:2px solid var(--navy); }
-.mck-table tbody td { padding:8px 12px; }
-.mck-table tbody td.num { text-align:right; font-family:'Source Code Pro',monospace; font-size:12px; }
-.mck-table tr.total-row { background:var(--light-grey); }
-.mck-table tr.total-row td { color:var(--navy); font-weight:600; }
+.gsm-table thead th.num { text-align:right; }
+.gsm-table tbody tr { border-bottom:1px solid var(--rule); }
+.gsm-table tbody tr:last-child { border-bottom:2px solid var(--navy); }
+.gsm-table tbody td { padding:8px 12px; }
+.gsm-table tbody td.num { text-align:right; font-family:'Source Code Pro',monospace; font-size:12px; }
+.gsm-table tr.total-row { background:var(--light-grey); }
+.gsm-table tr.total-row td { color:var(--navy); font-weight:600; }
 
 /* ── Emission factor chip — monospace badge for showing factor values ──────── */
 .ef-chip {
@@ -170,9 +170,9 @@ h2 {
 }
 
 /* ── Progress bar ─────────────────────────────────────────────────────────── */
-.mck-progress-label { display:flex; justify-content:space-between; font-size:12px; color:var(--mid-grey); margin-bottom:4px; }
-.mck-progress-track { background:var(--light-grey); height:6px; width:100%; }
-.mck-progress-fill  { background:var(--accent); height:6px; }
+.gsm-progress-label { display:flex; justify-content:space-between; font-size:12px; color:var(--mid-grey); margin-bottom:4px; }
+.gsm-progress-track { background:var(--light-grey); height:6px; width:100%; }
+.gsm-progress-fill  { background:var(--accent); height:6px; }
 
 /* ── Input overrides ─────────────────────────────────────────────────────────
    Make all Streamlit inputs match the gsolorzanomorera off-white / warm-border style. */
@@ -834,11 +834,11 @@ def kpi_html(label, value, unit, delta=None):
     if delta is not None:
         cls = "delta-neg" if delta < 0 else "delta-pos"
         arr = "↓" if delta < 0 else "↑"
-        d = f'<div class="mck-kpi-delta {cls}">{arr} {abs(delta):.1f}% vs prior year</div>'
-    return f"""<div class="mck-kpi">
-      <div class="mck-kpi-label">{label}</div>
-      <div class="mck-kpi-value">{value}</div>
-      <div class="mck-kpi-unit">{unit}</div>{d}
+        d = f'<div class="gsm-kpi-delta {cls}">{arr} {abs(delta):.1f}% vs prior year</div>'
+    return f"""<div class="gsm-kpi">
+      <div class="gsm-kpi-label">{label}</div>
+      <div class="gsm-kpi-value">{value}</div>
+      <div class="gsm-kpi-unit">{unit}</div>{d}
     </div>"""
 
 
@@ -858,54 +858,78 @@ def section_head(eyebrow, title, caption=""):
 with st.sidebar:
 
     # ── Illinois Tech branding block ──────────────────────────────────────────
-    # The REAL Illinois Tech logo is embedded as a base64-encoded PNG.
-    # Taken directly from official Illinois Tech brand assets.
-    # Embedding as a data-URI means no file I/O, no CDN request,
-    # works offline and on Streamlit Cloud — pixel-perfect every time.
+    # Rendered as pure HTML/CSS text — no image file, no CDN, no black box.
+    # Matches the screenshot exactly:
+    #   - "ILLINOIS TECH" in Illinois Tech scarlet (#CC0000), bold, large
+    #   - "SAM 503 ESG Analytics & Management" in white, smaller, below
+    #   - Both sit flush on the navy sidebar — transparent background
+    #
+    # Why text instead of image:
+    #   PNG images carry their own background colour (black in this case).
+    #   There is no CSS way to remove a PNG background without transparency.
+    #   Using styled HTML text gives us pixel-perfect control and zero
+    #   dependencies — no file needed, works on Streamlit Cloud instantly.
 
-    import base64
+    st.markdown(
+        '<div style="padding:20px 0 16px 0;">'
 
-    _LOGO_SRC = "data:image/png;base64,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"
+        # ① "ILLINOIS TECH" — scarlet, heavy weight, large tracking
+        # font-family uses a web-safe condensed-style fallback stack that
+        # approximates the Illinois Tech typeface without any web font import.
+        '<div style="'
+        'font-family: Arial Black, Arial, Helvetica, sans-serif;'
+        'font-weight: 900;'
+        'font-size: 1.55rem;'
+        'letter-spacing: 0.04em;'
+        'color: #CC0000;'          # Illinois Tech scarlet
+        'line-height: 1.1;'
+        'margin-bottom: 5px;'
+        '">'
+        'ILLINOIS TECH'
+        '</div>'
 
-    # Build the HTML string first, then pass it to st.markdown.
-    # We do NOT use an f-string here because _LOGO_SRC already contains the
-    # full data-URI — we just concatenate it with plain string addition so
-    # there is no risk of curly-brace conflicts inside the base64 payload.
-    _sidebar_html = (
-        '<div style="padding:20px 0 12px 0;">'
-
-        # ① Real Illinois Tech logo — embedded PNG data-URI
-        '<img src="' + _LOGO_SRC + '" alt="Illinois Tech" '
-        'style="width:185px;height:auto;display:block;margin-bottom:12px;'
-        'border-radius:3px;" />'
-
-        # ② Thin separator
-        '<div style="border-top:1px solid rgba(255,255,255,0.18);'
-        'margin-bottom:12px;"></div>'
-
-        # ③ Course / module eyebrow
-        '<div style="font-family:\'Source Sans 3\',sans-serif;'
-        'font-size:9px;font-weight:700;text-transform:uppercase;'
-        'letter-spacing:0.18em;color:#7DA3CC;margin-bottom:5px;">'
+        # ② "SAM 503 ESG Analytics & Management" — white, normal weight, small
+        '<div style="'
+        'font-family: Source Sans 3, Arial, sans-serif;'
+        'font-weight: 400;'
+        'font-size: 11px;'
+        'letter-spacing: 0.03em;'
+        'color: #FFFFFF;'
+        'margin-bottom: 14px;'
+        '">'
         'SAM 503 ESG Analytics &amp; Management'
         '</div>'
 
+        # ③ Thin separator between the IIT brand and the app label
+        '<div style="border-top:1px solid rgba(255,255,255,0.18);'
+        'margin-bottom:12px;"></div>'
+
         # ④ App title
-        '<div style="font-family:\'Playfair Display\',serif;'
-        'font-size:1.15rem;font-weight:700;color:#FFFFFF;'
-        'letter-spacing:-0.01em;line-height:1.2;margin-bottom:4px;">'
+        '<div style="'
+        'font-family: Playfair Display, Georgia, serif;'
+        'font-size: 1.1rem;'
+        'font-weight: 700;'
+        'color: #FFFFFF;'
+        'letter-spacing: -0.01em;'
+        'line-height: 1.2;'
+        'margin-bottom: 4px;'
+        '">'
         'GHG Carbon Inventory'
         '</div>'
 
         # ⑤ Framework sub-label
-        '<div style="font-size:10px;color:#7DA3CC;'
-        'text-transform:uppercase;letter-spacing:0.12em;">'
+        '<div style="'
+        'font-size: 10px;'
+        'color: #7DA3CC;'
+        'text-transform: uppercase;'
+        'letter-spacing: 0.12em;'
+        '">'
         'GHG Protocol Framework'
         '</div>'
 
-        '</div>'
+        '</div>',
+        unsafe_allow_html=True,
     )
-    st.markdown(_sidebar_html, unsafe_allow_html=True)
 
     st.divider()
 
@@ -1253,7 +1277,7 @@ elif page == "Scope 1 — Direct":
         ("Aviation",          "Mobile",     ff(sum(results["jet"]))),
         ("Fugitive",          "Fugitive",   ff(sum(results["fugitive"]))),
     ]
-    tbl = ('<table class="mck-table"><thead><tr>'
+    tbl = ('<table class="gsm-table"><thead><tr>'
            '<th>Source</th><th>Category</th><th class="num">tCO₂e</th>'
            '</tr></thead><tbody>')
     for n, c, v in rows:
@@ -1328,7 +1352,7 @@ elif page == "Scope 2 — Purchased Energy":
     st.markdown(f"<span class='ef-chip'>EF: {EF['s2_steam_ef']} kgCO₂e/GJ</span>", unsafe_allow_html=True)
 
     st.divider()
-    tbl = ('<table class="mck-table"><thead><tr>'
+    tbl = ('<table class="gsm-table"><thead><tr>'
            '<th>Method</th><th>Basis</th><th class="num">tCO₂e</th>'
            '</tr></thead><tbody>')
     tbl += f"<tr><td>Location-Based</td><td>Grid average × total MWh</td><td class='num'>{ff(s2['lb'])}</td></tr>"
@@ -1419,7 +1443,7 @@ elif page == "Scope 3 — Value Chain":
         ("cat7",  "Cat 7 — Employee Commuting",          "Activity-based"),
         ("cat11", "Cat 11 — Use of Sold Products",       "Activity-based"),
     ]
-    tbl = ('<table class="mck-table"><thead><tr>'
+    tbl = ('<table class="gsm-table"><thead><tr>'
            '<th>Category</th><th>Method</th><th class="num">tCO₂e</th><th class="num">% of S3</th>'
            '</tr></thead><tbody>')
     for k, label, method in cat_labels:
@@ -1480,7 +1504,7 @@ elif page == "Dashboard":
             ("Scope 3",      "Value chain — upstream & downstream",   s3["total"],s["prior_s3"]),
             ("Total",        "S1 + S2(MB) + S3",                      grand,      prior_grand),
         ]
-        tbl = ('<table class="mck-table"><thead><tr>'
+        tbl = ('<table class="gsm-table"><thead><tr>'
                '<th>Scope</th><th>Description</th>'
                '<th class="num">tCO₂e</th><th class="num">% Share</th><th class="num">YoY</th>'
                '</tr></thead><tbody>')
@@ -1505,7 +1529,7 @@ elif page == "Dashboard":
         st.markdown("## Carbon Intensity")
         rev, emp = s["revenue_musd"], s["employees"]
         bench   = s["benchmark_revenue_intensity"]
-        tbl2 = ('<table class="mck-table"><thead><tr>'
+        tbl2 = ('<table class="gsm-table"><thead><tr>'
                 '<th>Metric</th><th class="num">Value</th><th class="num">Unit</th><th class="num">YoY</th>'
                 '</tr></thead><tbody>')
         if rev > 0:
@@ -1535,8 +1559,8 @@ elif page == "Dashboard":
         rp = s2["recs_pct"]
         st.markdown(
             f'<div style="margin:12px 0;">'
-            f'<div class="mck-progress-label"><span>Renewable Coverage</span><span>{rp:.1f}%</span></div>'
-            f'<div class="mck-progress-track"><div class="mck-progress-fill" style="width:{min(rp,100):.1f}%"></div></div>'
+            f'<div class="gsm-progress-label"><span>Renewable Coverage</span><span>{rp:.1f}%</span></div>'
+            f'<div class="gsm-progress-track"><div class="gsm-progress-fill" style="width:{min(rp,100):.1f}%"></div></div>'
             f'</div>',
             unsafe_allow_html=True,
         )
@@ -1558,11 +1582,11 @@ elif page == "Dashboard":
 
         st.markdown(
             f'<div style="margin-top:16px;">'
-            f'<div class="mck-progress-label">'
+            f'<div class="gsm-progress-label">'
             f'<span>Progress toward {s["target_reduction_pct"]:.0f}% reduction by {s["target_year"]}</span>'
             f'<span>{progress*100:.0f}%</span></div>'
-            f'<div class="mck-progress-track">'
-            f'<div class="mck-progress-fill" style="width:{min(progress*100,100):.1f}%"></div>'
+            f'<div class="gsm-progress-track">'
+            f'<div class="gsm-progress-fill" style="width:{min(progress*100,100):.1f}%"></div>'
             f'</div></div>',
             unsafe_allow_html=True,
         )
@@ -1723,4 +1747,11 @@ METHODOLOGY
     with st.expander("Report Preview"):
         st.text(report_text)
 
-  
+    st.divider()
+    st.markdown("## Restore Saved Inputs")
+    st.caption("Upload a previously saved .json file to reload all inputs.")
+    uploaded_json = st.file_uploader("Upload JSON", type="json", label_visibility="collapsed")
+    if uploaded_json:
+        for k, v in json.load(uploaded_json).items():
+            st.session_state[k] = v
+        st.success("Inputs restored. Navigate to any section to review.")
