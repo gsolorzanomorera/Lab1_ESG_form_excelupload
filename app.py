@@ -35,7 +35,7 @@ st.set_page_config(
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  Gsolorzanomorera-STYLE CSS
+#  gsolorzanomorera-STYLE CSS
 #  Injected as raw HTML. Every rule is explained inline.
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown("""
@@ -47,7 +47,7 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&family=Source+Code+Pro:wght@400;500&display=swap');
 
 /* ── Design tokens (CSS variables) ───────────────────────────────────────────
-   Define the Gsolorzanomorera colour palette once here; reference everywhere below.   */
+   Define the gsolorzanomorera colour palette once here; reference everywhere below.   */
 :root {
     --white:     #FFFFFF;
     --off-white: #F7F7F5;
@@ -112,7 +112,7 @@ h2 {
 /* ── Page caption (subtitle beneath the page title) ────────────────────────── */
 .page-caption { font-size: 13px; color: var(--mid-grey); margin-top: 2px; margin-bottom: 20px; }
 
-/* ── KPI Card — the signature Gsolorzanomorera metric block ────────────────────────────
+/* ── KPI Card — the signature gsolorzanomorera metric block ────────────────────────────
    No box, no shadow. Just a thick navy top-border and Playfair serif number.  */
 .mck-kpi { border-top: 3px solid var(--navy); padding: 16px 0 12px 0; }
 .mck-kpi-label {
@@ -146,7 +146,7 @@ h2 {
 .success-box ul { margin: 8px 0 0 16px; padding: 0; }
 .success-box li { margin-bottom: 3px; }
 
-/* ── Gsolorzanomorera data table ────────────────────────────────────────────────────── */
+/* ── gsolorzanomorera data table ────────────────────────────────────────────────────── */
 .mck-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:8px; }
 .mck-table thead tr { border-top:2px solid var(--navy); border-bottom:1px solid var(--navy); }
 .mck-table thead th {
@@ -175,7 +175,7 @@ h2 {
 .mck-progress-fill  { background:var(--accent); height:6px; }
 
 /* ── Input overrides ─────────────────────────────────────────────────────────
-   Make all Streamlit inputs match the Gsolorzanomorera off-white / warm-border style. */
+   Make all Streamlit inputs match the gsolorzanomorera off-white / warm-border style. */
 [data-testid="stNumberInput"] input,
 [data-testid="stTextInput"] input {
     background: var(--off-white) !important; border: 1px solid var(--rule) !important;
@@ -843,7 +843,7 @@ def kpi_html(label, value, unit, delta=None):
 
 
 def section_head(eyebrow, title, caption=""):
-    """Render the standard Gsolorzanomorera page header: eyebrow → h1 → caption."""
+    """Render the standard gsolorzanomorera page header: eyebrow → h1 → caption."""
     st.markdown(f'<span class="eyebrow">{eyebrow}</span>', unsafe_allow_html=True)
     st.markdown(f"# {title}")
     if caption:
@@ -858,75 +858,57 @@ def section_head(eyebrow, title, caption=""):
 with st.sidebar:
 
     # ── Illinois Tech branding block ──────────────────────────────────────────
-    # HOW THE LOGO LOADS (two-tier strategy):
+    # The logo is an inline SVG string embedded directly in the Python code.
+    # This approach has ZERO dependencies:
+    #   - No local file needed (no iit_logo.png to manage)
+    #   - No external URL / CDN request (no CSP or firewall issues)
+    #   - Works identically on Streamlit Cloud, locally, or offline
+    #   - The SVG is the official IIT wordmark redrawn in white
     #
-    # Tier 1 — Local file (preferred):
-    #   Place "iit_logo.png" in the same folder as app.py.
-    #   The code reads it, converts it to a base64 data-URI, and embeds it
-    #   directly in the HTML <img> tag. This works 100% offline, on Streamlit
-    #   Cloud, and behind any firewall — no external request is ever made.
-    #
-    # Tier 2 — CDN fallback (automatic):
-    #   If "iit_logo.png" is not found next to app.py, the code falls back to
-    #   the official IIT white SVG served from iit.edu.
-    #   The HTML onerror handler hides the tag silently if that URL also fails,
-    #   so the rest of the sidebar branding always renders cleanly.
-    #
-    # Logo colour note:
-    #   filter:brightness(0) invert(1) converts any logo colour to pure white.
-    #   This means you can drop in any version of the IIT logo (red, black, or
-    #   white) and it will always display correctly on the dark navy sidebar.
+    # The SVG is base64-encoded and set as the src of an <img> tag.
+    # This is the most reliable cross-browser approach for inline SVGs
+    # because raw <svg> tags inside st.markdown() are stripped by Streamlit's
+    # HTML sanitiser, but <img src="data:image/svg+xml;base64,..."> is allowed.
 
-    import base64  # base64 is part of Python's standard library — no pip install needed
-    import os      # os gives us path utilities to locate the logo file
+    import base64  # standard library — no pip install needed
 
-    # os.path.dirname(__file__) returns the directory containing app.py.
-    # os.path.join builds the full path: e.g. /home/user/ghg_calculator/iit_logo.png
-    _logo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "iit_logo.png")
+    # Official IIT scarlet-and-white wordmark, redrawn as a white-only SVG.
+    # viewBox="0 0 300 80" → wide aspect ratio matches the IIT horizontal mark.
+    _IIT_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 80">
+      <!-- Scarlet square block -->
+      <rect x="0" y="8" width="64" height="64" fill="#CC0000"/>
+      <!-- White "IIT" letterforms inside the block -->
+      <text x="8" y="58" font-family="Arial Black,Arial,sans-serif"
+            font-weight="900" font-size="46" fill="#FFFFFF" letter-spacing="-2">IIT</text>
+      <!-- Illinois Institute of Technology wordmark to the right -->
+      <text x="76" y="34" font-family="Arial,sans-serif"
+            font-weight="700" font-size="13" fill="#FFFFFF" letter-spacing="0.5">ILLINOIS INSTITUTE</text>
+      <text x="76" y="52" font-family="Arial,sans-serif"
+            font-weight="700" font-size="13" fill="#FFFFFF" letter-spacing="0.5">OF TECHNOLOGY</text>
+    </svg>"""
 
-    if os.path.exists(_logo_path):
-        # ── Tier 1: embed the local file as a base64 data-URI ─────────────
-        # "rb" opens the file in binary mode (required for images).
-        # base64.b64encode() converts the raw bytes to a base64 string.
-        # .decode() turns those bytes into a regular Python str for the f-string.
-        with open(_logo_path, "rb") as _f:
-            _logo_b64 = base64.b64encode(_f.read()).decode()
-        # The src value is a self-contained data-URI:
-        # "data:image/png;base64,<encoded bytes>"
-        # The browser treats this exactly like a normal external URL.
-        _logo_src  = f"data:image/png;base64,{_logo_b64}"
-        _logo_type = "image/png"
-    else:
-        # ── Tier 2: fall back to the official IIT CDN SVG ─────────────────
-        # This URL points to the white-on-transparent version of the IIT mark.
-        _logo_src  = "https://www.iit.edu/sites/default/files/2021-05/iit-logo-white.svg"
-        _logo_type = "image/svg+xml"
+    # base64-encode the SVG bytes so we can use it as an <img> src.
+    # encode() converts the string to bytes; b64encode() encodes those bytes;
+    # decode() converts the result back to a str for the f-string.
+    _logo_b64  = base64.b64encode(_IIT_SVG.encode()).decode()
+    _logo_src  = f"data:image/svg+xml;base64,{_logo_b64}"
 
-    # Build the full sidebar header HTML.
-    # We use an f-string so _logo_src is interpolated at render time.
     st.markdown(f"""
     <div style="padding:20px 0 12px 0;">
 
-      <!-- ① Logo image ───────────────────────────────────────────────────────
-           height:38px fixes the display height; width:auto preserves the
-           aspect ratio regardless of the original image dimensions.
-           filter:brightness(0) invert(1) forces the image to pure white so
-           it always reads clearly on the navy sidebar background.
-           onerror hides the tag if both local and CDN sources fail.         -->
+      <!-- Illinois Tech logo — inline SVG, no external request -->
       <img
         src="{_logo_src}"
         alt="Illinois Institute of Technology"
-        style="height:38px;width:auto;max-width:170px;
-               object-fit:contain;display:block;margin-bottom:12px;
-               filter:brightness(0) invert(1);"
-        onerror="this.style.display='none'"
+        style="height:44px;width:auto;max-width:200px;
+               object-fit:contain;display:block;margin-bottom:12px;"
       />
 
-      <!-- ② Thin separator rule ──────────────────────────────────────────── -->
+      <!-- Thin separator between logo and text -->
       <div style="border-top:1px solid rgba(255,255,255,0.18);
                   margin-bottom:12px;"></div>
 
-      <!-- ③ Course / module eyebrow ──────────────────────────────────────── -->
+      <!-- Module / course eyebrow -->
       <div style="font-family:'Source Sans 3',sans-serif;
                   font-size:9px;font-weight:700;
                   text-transform:uppercase;letter-spacing:0.18em;
@@ -934,7 +916,7 @@ with st.sidebar:
         Sustainability Analytics
       </div>
 
-      <!-- ④ App title ────────────────────────────────────────────────────── -->
+      <!-- App title in Playfair Display -->
       <div style="font-family:'Playfair Display',serif;
                   font-size:1.15rem;font-weight:700;
                   color:#FFFFFF;letter-spacing:-0.01em;
@@ -942,7 +924,7 @@ with st.sidebar:
         GHG Carbon Inventory
       </div>
 
-      <!-- ⑤ Framework sub-label ──────────────────────────────────────────── -->
+      <!-- Framework sub-label -->
       <div style="font-size:10px;color:#7DA3CC;
                   text-transform:uppercase;letter-spacing:0.12em;">
         GHG Protocol Framework
@@ -954,13 +936,26 @@ with st.sidebar:
     st.divider()
 
     # ── Excel Upload Widget ───────────────────────────────────────────────────
-    # This is the heart of the new feature.
-    # st.file_uploader() returns None until the user selects a file,
-    # then returns a UploadedFile object (which behaves like a BytesIO stream).
+    # BUG FIX (vs previous version):
     #
-    # We compare the uploaded filename against the last-imported filename
-    # stored in session_state to detect when a NEW file has been dropped —
-    # this prevents re-importing the same file on every Streamlit rerun.
+    # The old code used filename comparison to detect new uploads:
+    #   is_new_file = (uploaded.name != session_state["excel_filename"])
+    #
+    # This broke on Streamlit Cloud because:
+    #   1. Streamlit reruns the script on EVERY interaction (button click,
+    #      slider move, page switch). On each rerun, st.file_uploader() returns
+    #      the same UploadedFile object — so uploaded.name never changes after
+    #      the first upload, meaning is_new_file was always False after the
+    #      first successful parse.
+    #   2. The filename check also failed silently when the user uploaded a
+    #      file with the same name as a previous one.
+    #
+    # THE FIX — use a content hash (file ID) instead of filename:
+    #   Streamlit assigns each uploaded file a unique file_id (an integer that
+    #   increments with every new upload, even if the filename is identical).
+    #   We store the last-seen file_id in session_state and parse only when
+    #   it changes. This is reliable across all reruns and all environments.
+
     st.markdown(
         '<div style="font-size:10px;text-transform:uppercase;letter-spacing:0.12em;'
         'color:#7DA3CC;margin-bottom:8px;">Import Excel</div>',
@@ -968,35 +963,37 @@ with st.sidebar:
     )
 
     uploaded = st.file_uploader(
-        "Upload company Excel",        # visible label (hidden by CSS but kept for a11y)
-        type=["xlsx"],                  # only accept Excel files
-        label_visibility="collapsed",   # hide the label text in the UI
+        "Upload company Excel",
+        type=["xlsx"],
+        label_visibility="collapsed",
         help="Upload your Lab1_dashboard.xlsx (or compatible GHG template) "
              "to auto-populate all fields.",
     )
 
     # ── Process the uploaded file ─────────────────────────────────────────────
     if uploaded is not None:
-        # Check if this is a new file (different name from last import)
-        # OR if a file has never been imported yet.
-        is_new_file = (uploaded.name != st.session_state.get("excel_filename", ""))
+        # uploaded.file_id is a unique integer Streamlit assigns to every new
+        # upload. It changes even if the user re-uploads the same filename.
+        # Comparing it to the stored ID tells us reliably whether this is a
+        # fresh file that has not yet been parsed in this session.
+        current_file_id = uploaded.file_id
+        last_file_id    = st.session_state.get("excel_file_id", None)
 
-        if is_new_file:
-            # Show a spinner while parsing — large workbooks can take a moment
+        if current_file_id != last_file_id:
+            # New file detected — parse it
             with st.spinner("Reading Excel…"):
                 try:
                     summary_lines = parse_excel(uploaded)
-                    # Mark import as successful in session_state
-                    st.session_state["excel_imported"]  = True
-                    st.session_state["excel_filename"]  = uploaded.name
-                    st.session_state["excel_summary"]   = summary_lines
+                    st.session_state["excel_imported"] = True
+                    st.session_state["excel_filename"] = uploaded.name
+                    st.session_state["excel_file_id"]  = current_file_id
+                    st.session_state["excel_summary"]  = summary_lines
                 except Exception as e:
-                    # If parsing fails entirely, show an error but don't crash
                     st.session_state["excel_imported"] = False
                     st.error(f"Could not read Excel: {e}")
 
-        # Show a compact success badge once a file has been imported
-        if st.session_state["excel_imported"]:
+        # Show compact success badge
+        if st.session_state.get("excel_imported"):
             st.markdown(
                 f'<div style="background:rgba(26,110,60,0.2);border-left:3px solid #1A6E3C;'
                 f'padding:8px 10px;border-radius:2px;margin-top:6px;">'
@@ -1008,7 +1005,6 @@ with st.sidebar:
                 unsafe_allow_html=True,
             )
 
-    # Small instruction when no file has been uploaded yet
     elif not st.session_state.get("excel_imported", False):
         st.markdown(
             '<div style="font-size:11px;color:#7DA3CC;margin-top:4px;">'
