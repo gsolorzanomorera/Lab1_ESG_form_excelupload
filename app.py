@@ -1684,11 +1684,3 @@ METHODOLOGY
     with st.expander("Report Preview"):
         st.text(report_text)
 
-    st.divider()
-    st.markdown("## Restore Saved Inputs")
-    st.caption("Upload a previously saved .json file to reload all inputs.")
-    uploaded_json = st.file_uploader("Upload JSON", type="json", label_visibility="collapsed")
-    if uploaded_json:
-        for k, v in json.load(uploaded_json).items():
-            st.session_state[k] = v
-        st.success("Inputs restored. Navigate to any section to review.")
