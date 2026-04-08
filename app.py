@@ -917,6 +917,85 @@ with st.sidebar:
 
     st.divider()
 
+    # ── Illinois Tech branding block ──────────────────────────────────────────
+    # Rendered as pure HTML/CSS text — no image file, no CDN, no black box.
+    # Matches the screenshot exactly:
+    #   - "ILLINOIS TECH" in Illinois Tech scarlet (#CC0000), bold, large
+    #   - "SAM 503 ESG Analytics & Management" in white, smaller, below
+    #   - Both sit flush on the navy sidebar — transparent background
+    #
+    # Why text instead of image:
+    #   PNG images carry their own background colour (black in this case).
+    #   There is no CSS way to remove a PNG background without transparency.
+    #   Using styled HTML text gives us pixel-perfect control and zero
+    #   dependencies — no file needed, works on Streamlit Cloud instantly.
+
+    st.markdown(
+        '<div style="padding:20px 0 16px 0;">'
+
+        # ① "ILLINOIS TECH" — scarlet, heavy weight, large tracking
+        # font-family uses a web-safe condensed-style fallback stack that
+        # approximates the Illinois Tech typeface without any web font import.
+        '<div style="'
+        'font-family: Arial Black, Arial, Helvetica, sans-serif;'
+        'font-weight: 900;'
+        'font-size: 1.55rem;'
+        'letter-spacing: 0.04em;'
+        'color: #CC0000;'          # Illinois Tech scarlet
+        'line-height: 1.1;'
+        'margin-bottom: 5px;'
+        '">'
+        'ILLINOIS TECH'
+        '</div>'
+
+        # ② "SAM 503 ESG Analytics & Management" — white, normal weight, small
+        '<div style="'
+        'font-family: Source Sans 3, Arial, sans-serif;'
+        'font-weight: 400;'
+        'font-size: 11px;'
+        'letter-spacing: 0.03em;'
+        'color: #FFFFFF;'
+        'margin-bottom: 14px;'
+        '">'
+        'SAM 503 ESG Analytics &amp; Management'
+        '</div>'
+
+        # ③ Thin separator between the IIT brand and the app label
+        '<div style="border-top:1px solid rgba(255,255,255,0.18);'
+        'margin-bottom:12px;"></div>'
+
+        # ④ App title
+        '<div style="'
+        'font-family: Playfair Display, Georgia, serif;'
+        'font-size: 1.1rem;'
+        'font-weight: 700;'
+        'color: #FFFFFF;'
+        'letter-spacing: -0.01em;'
+        'line-height: 1.2;'
+        'margin-bottom: 4px;'
+        '">'
+        'GHG Carbon Inventory'
+        '</div>'
+
+        # ⑤ Framework sub-label
+        '<div style="'
+        'font-size: 10px;'
+        'color: #7DA3CC;'
+        'text-transform: uppercase;'
+        'letter-spacing: 0.12em;'
+        '">'
+        'GHG Protocol Framework'
+        '</div>'
+
+        '</div>',
+        unsafe_allow_html=True,
+    )
+
+    st.divider()
+
+    # ── Excel Upload Widget     
+    
+    
     # ── Excel Upload Widget ───────────────────────────────────────────────────
     # This is the heart of the new feature.
     # st.file_uploader() returns None until the user selects a file,
